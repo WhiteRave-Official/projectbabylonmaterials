@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="GNU GPLv3"
+
+[[mods]]
+modId="project_babylon_materials"
+version="1.0.0"
+displayName="Project Babylon Materials"
+description='''
+ProjectBabylonMaterials - Adds Materials for Project Babylon Mods.
+'''
+
+[[dependencies.project_babylon_materials]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.project_babylon_materials]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1]"
+ordering="NONE"
+side="BOTH"

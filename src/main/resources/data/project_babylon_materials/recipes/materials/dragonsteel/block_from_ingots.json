@@ -1,0 +1,18 @@
+﻿{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "III",
+    "III",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "project_babylon_materials:dragonsteel_ingot"
+    }
+  },
+  "result": {
+    "item": "project_babylon_materials:dragonsteel_block",
+    "count": 1
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "project_babylon_materials:bowl_and_mortar"
+    },
+    {
+      "item": "project_babylon_materials:quartz_dust"
+    },
+    {
+      "item": "project_babylon_materials:quartz_dust"
+    },
+    {
+      "item": "project_babylon_materials:amethyst_dust"
+    },
+    {
+      "item": "project_babylon_materials:amethyst_dust"
+    },
+    {
+      "item": "minecraft:glowstone_dust"
+    },
+    {
+      "item": "minecraft:glowstone_dust"
+    }
+  ],
+  "result": {
+    "item": "project_babylon_materials:magic_dust",
+    "count": 4
+  }
+}

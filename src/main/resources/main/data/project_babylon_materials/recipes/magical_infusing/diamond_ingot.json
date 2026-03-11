@@ -1,0 +1,16 @@
+{
+  "type": "project_babylon_materials:magical_infusing",
+  "top": {
+    "item": "minecraft:iron_ingot",
+    "count": 1
+  },
+  "bottom": {
+    "item": "project_babylon_materials:diamond_dust",
+    "count": 4
+  },
+  "result": {
+    "item": "project_babylon_materials:diamond_ingot",
+    "count": 1
+  },
+  "craft_time": 200
+}

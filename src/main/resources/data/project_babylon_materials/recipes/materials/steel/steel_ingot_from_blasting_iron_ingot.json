@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "minecraft:iron_ingot"
+  },
+  "result": "project_babylon_materials:steel_ingot",
+  "experience": 0.7,
+  "cookingtime": 100
+}

@@ -1,0 +1,16 @@
+{
+  "type": "project_babylon_materials:magical_infusing",
+  "top": {
+    "item": "project_babylon_materials:steel_ingot",
+    "count": 1
+  },
+  "bottom": {
+    "item": "project_babylon_materials:magical_ice_shard",
+    "count": 2
+  },
+  "result": {
+    "item": "project_babylon_materials:everfrost_ingot",
+    "count": 1
+  },
+  "craft_time": 200
+}

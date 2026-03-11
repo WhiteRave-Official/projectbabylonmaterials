@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "IHI",
+    " H "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "H": {
+      "item": "project_babylon_materials:reinforced_handle"
+    }
+  },
+  "result": {
+    "item": "project_babylon_materials:netherite_smithhammer"
+  }
+}

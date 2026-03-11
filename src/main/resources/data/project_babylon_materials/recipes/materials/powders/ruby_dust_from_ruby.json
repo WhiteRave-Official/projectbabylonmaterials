@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "project_babylon_materials:bowl_and_mortar"
+    },
+    {
+      "item": "project_babylon_materials:ruby"
+    }
+  ],
+  "result": {
+    "item": "project_babylon_materials:ruby_dust",
+    "count": 2
+  }
+}

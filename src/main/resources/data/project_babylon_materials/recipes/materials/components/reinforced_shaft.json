@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "project_babylon_materials:shaft"
+    },
+    {
+      "item": "project_babylon_materials:steel_ingot"
+    },
+    {
+      "item": "project_babylon_materials:steel_ingot"
+    }
+  ],
+  "result": {
+    "item": "project_babylon_materials:reinforced_shaft",
+    "count": 1
+  }
+}

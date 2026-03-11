@@ -1,0 +1,13 @@
+﻿{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "project_babylon_materials:infused_golden_ingot"
+    }
+  ],
+  "result": {
+    "item": "project_babylon_materials:infused_golden_nugget",
+    "count": 9
+  }
+}

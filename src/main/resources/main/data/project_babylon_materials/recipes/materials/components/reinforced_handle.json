@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "project_babylon_materials:handle"
+    },
+    {
+      "item": "project_babylon_materials:steel_ingot"
+    }
+  ],
+  "result": {
+    "item": "project_babylon_materials:reinforced_handle",
+    "count": 1
+  }
+}

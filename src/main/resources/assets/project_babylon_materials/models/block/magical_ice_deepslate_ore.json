@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "project_babylon_materials:block/magical_ice_deepslate_ore"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "IHI",
+    " H "
+  ],
+  "key": {
+    "I": {
+      "item": "project_babylon_materials:infused_golden_ingot"
+    },
+    "H": {
+      "item": "project_babylon_materials:handle"
+    }
+  },
+  "result": {
+    "item": "project_babylon_materials:golden_smithhammer"
+  }
+}

@@ -37,6 +37,7 @@ public final class PBMCreativeTabs {
                         output.accept(PBMItems.STEEL_NUGGET.get());
                         output.accept(PBMItems.IRON_PLATE.get());
                         output.accept(PBMItems.NETHERITE_PLATE.get());
+                        output.accept(PBMItems.NETHERITE_NUGGET.get());
                         output.accept(PBMItems.DIAMOND_SMITHHAMMER.get());
                         output.accept(PBMItems.GOLDEN_SMITHHAMMER.get());
                         output.accept(PBMItems.IRON_SMITHHAMMER.get());

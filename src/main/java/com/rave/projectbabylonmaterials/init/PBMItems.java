@@ -37,6 +37,7 @@ public final class PBMItems {
     public static final RegistryObject<Item> STEEL_NUGGET = registerSimpleItem("steel_nugget");
     public static final RegistryObject<Item> IRON_PLATE = registerSimpleItem("iron_plate");
     public static final RegistryObject<Item> NETHERITE_PLATE = registerSimpleItem("netherite_plate");
+    public static final RegistryObject<Item> NETHERITE_NUGGET = registerSimpleItem("netherite_nugget");
 
     public static final RegistryObject<Item> MAGICAL_ICE_SHARD = registerSimpleItem("magical_ice_shard");
     public static final RegistryObject<Item> MAGIC_DUST = registerSimpleItem("magic_dust");

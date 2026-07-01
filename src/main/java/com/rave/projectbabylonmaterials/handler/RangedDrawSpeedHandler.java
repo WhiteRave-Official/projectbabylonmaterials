@@ -26,6 +26,11 @@ public final class RangedDrawSpeedHandler {
         return Math.max(1, Mth.floor(originalDuration / (1.0D + drawSpeedBonus)));
     }
 
+    public static float getCrossbowChargeProgress(LivingEntity livingEntity, int usedTicks, int originalDuration) {
+        int adjustedDuration = adjustCrossbowChargeDuration(livingEntity, originalDuration);
+        return Mth.clamp((float) usedTicks / (float) adjustedDuration, 0.0F, 1.0F);
+    }
+
     private static double getDrawSpeedBonus(LivingEntity livingEntity) {
         if (livingEntity == null) {
             return 0.0D;

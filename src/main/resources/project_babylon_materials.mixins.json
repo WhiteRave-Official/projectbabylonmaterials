@@ -13,14 +13,9 @@
     "ProtectionEnchantmentMixin",
     "SedpartiesEpicFightHandlerMixin",
     "AbstractArrowAccessor",
-    "AnvilMenuEnchantmentSlotsMixin",
-    "ItemStackRarityNameMixin",
-    "ItemStackEnchantableMixin",
-    "CrossbowItemDrawSpeedMixin",
     "MinecraftGlowingMixin"
   ],
   "client": [
-    "AbstractContainerScreenAccessor",
     "AbstractTrailParticleMixin",
     "HumanoidArmorLayerMixin",
     "ItemInHandLayerMixin",

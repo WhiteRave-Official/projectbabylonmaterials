@@ -43,9 +43,7 @@ public final class VanillaEnchantmentRebalanceHandler {
         data.putInt(LAST_BOW_POWER_TAG, EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, bow));
         data.putInt(LAST_BOW_FLAME_TAG, EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, bow));
         data.putInt(LAST_BOW_INFINITY_TAG, EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bow));
-        data.putLong(LAST_BOW_TICK_TAG, event.getLevel().getGameTime());
-        event.setCharge(GemEffectHandler.adjustBowCharge(bow, event.getCharge()));
-    }
+        data.putLong(LAST_BOW_TICK_TAG, event.getLevel().getGameTime());    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingHurt(LivingHurtEvent event) {

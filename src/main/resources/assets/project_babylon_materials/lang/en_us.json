@@ -213,4 +213,21 @@
     "effect.project_babylon_materials.holy_sigil_buff":  "Holy Sigil",
     "effect.project_babylon_materials.crit_resistance_buff":  "Crit Resistance",
     "effect.project_babylon_materials.provoke_debuff":  "Provoke"
+,
+    "tooltip.project_babylon_materials.container_help.enable":  "Enable slot help",
+    "tooltip.project_babylon_materials.container_help.disable":  "Disable slot help",
+    "tooltip.project_babylon_materials.container_help.accepts_label":  "Accepts:",
+    "tooltip.project_babylon_materials.container_help.description_label":  "Description:",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.fuel.title":  "Fuel Slot",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.fuel.desc.1":  "Provides magical fuel for infusing recipes.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.fuel.desc.2":  "Place Magic Dust here to power the table.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.top_input.title":  "Upper Input Slot",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.top_input.desc.1":  "This is the primary material slot.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.top_input.desc.2":  "Place the base ingot or item to be infused here.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.bottom_input.title":  "Lower Input Slot",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.bottom_input.desc.1":  "This is the secondary catalyst slot.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.bottom_input.desc.2":  "Place the required dust or magical ingredient here.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.output.title":  "Output Slot",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.output.desc.1":  "Finished infusing results appear here.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.output.desc.2":  "You can take items out, but cannot place items in."
 }

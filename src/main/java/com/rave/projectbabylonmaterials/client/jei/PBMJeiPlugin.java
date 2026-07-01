@@ -7,6 +7,7 @@ import com.rave.projectbabylonmaterials.init.PBMRecipes;
 import com.rave.projectbabylonmaterials.recipe.MagicalInfuserRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -54,6 +55,7 @@ public class PBMJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(PBMItems.GOLDEN_SMITHHAMMER.get()), HAMMER_PLATING_RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(PBMItems.DIAMOND_SMITHHAMMER.get()), HAMMER_PLATING_RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(PBMItems.NETHERITE_SMITHHAMMER.get()), HAMMER_PLATING_RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(PBMItems.BOWL_AND_MORTAR.get()), RecipeTypes.CRAFTING);
     }
 
     private static List<MagicalInfuserRecipe> getMagicalInfuserRecipes() {

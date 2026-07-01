@@ -212,5 +212,22 @@
     "effect.project_babylon_materials.ash_memory_buff":  "Память Пепла",
     "effect.project_babylon_materials.holy_sigil_buff":  "Святая Метка",
     "effect.project_babylon_materials.crit_resistance_buff":  "Сопротивление Криту",
-    "effect.project_babylon_materials.provoke_debuff":  "Провокация"
+    "effect.project_babylon_materials.provoke_debuff":  "Провокация",
+
+    "tooltip.project_babylon_materials.container_help.enable": "Включить подсказки по слотам",
+    "tooltip.project_babylon_materials.container_help.disable": "Отключить подсказки по слотам",
+    "tooltip.project_babylon_materials.container_help.accepts_label": "Принимает:",
+    "tooltip.project_babylon_materials.container_help.description_label": "Описание:",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.fuel.title": "Слот для Топлива",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.fuel.desc.1": "Обеспечивает магической энергией процесс наполнения.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.fuel.desc.2": "Поместите сюда Магическую Пыль для работы стола.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.top_input.title": "Верхний Исходный Слот",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.top_input.desc.1": "Это основной слот для материалов.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.top_input.desc.2": "Поместите сюда слиток или предмет, который нужно наполнить.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.bottom_input.title": "Нижний Каталитический Слот",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.bottom_input.desc.1": "Это дополнительный слот для катализатора.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.bottom_input.desc.2": "Поместите сюда необходимую пыль или магический ингредиент.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.output.title": "Слот Результата",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.output.desc.1": "Готовые результаты наполнения появятся здесь.",
+    "tooltip.project_babylon_materials.container.magical_infuser.slot.output.desc.2": "Вы можете забирать предметы, но не можете их сюда положить."
 }

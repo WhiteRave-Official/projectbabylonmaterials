@@ -8,6 +8,7 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -62,8 +63,15 @@ public class HammerPlatingRecipeCategory implements IRecipeCategory<HammerPlatin
 
     @Override
     public void draw(HammerPlatingJeiRecipe recipe, mezz.jei.api.gui.ingredient.IRecipeSlotsView recipeSlotsView,
-                     net.minecraft.client.gui.GuiGraphics guiGraphics, double mouseX, double mouseY) {
+                     GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        drawSlot(guiGraphics, 0, 1);
+        drawSlot(guiGraphics, 34, 1);
+        drawSlot(guiGraphics, 98, 1);
         guiGraphics.blit(FURNACE_TEXTURE, 58, 1, 176, 14, 24, 17);
+    }
+
+    private static void drawSlot(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(FURNACE_TEXTURE, x - 1, y - 1, 7, 83, 18, 18);
     }
 
     public static List<HammerPlatingJeiRecipe> createRecipes() {

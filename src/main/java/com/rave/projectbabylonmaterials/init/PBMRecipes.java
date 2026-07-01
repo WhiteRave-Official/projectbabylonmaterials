@@ -1,7 +1,6 @@
 package com.rave.projectbabylonmaterials.init;
 
 import com.rave.projectbabylonmaterials.ProjectBabylonMaterials;
-import com.rave.projectbabylonmaterials.recipe.GemDustRecipe;
 import com.rave.projectbabylonmaterials.recipe.HammerPlatingRecipe;
 import com.rave.projectbabylonmaterials.recipe.MagicalInfuserRecipe;
 import net.minecraft.core.registries.Registries;
@@ -24,9 +23,6 @@ public final class PBMRecipes {
 
     public static final RegistryObject<RecipeSerializer<HammerPlatingRecipe>> HAMMER_PLATING_SERIALIZER =
             SERIALIZERS.register("hammer_plating", () -> new SimpleCraftingRecipeSerializer<>(HammerPlatingRecipe::new));
-
-    public static final RegistryObject<RecipeSerializer<GemDustRecipe>> GEM_DUST_SERIALIZER =
-            SERIALIZERS.register("gem_dust", () -> new SimpleCraftingRecipeSerializer<>(GemDustRecipe::new));
 
     public static final RegistryObject<RecipeType<MagicalInfuserRecipe>> MAGICAL_INFUSING_TYPE =
             RECIPE_TYPES.register("magical_infusing", () -> new RecipeType<>() {

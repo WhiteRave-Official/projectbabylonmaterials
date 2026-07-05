@@ -1,7 +1,6 @@
 package com.rave.projectbabylonmaterials.effect;
 
 import com.rave.projectbabylonmaterials.init.PBMEffects;
-import io.redspace.ironsspellbooks.damage.ISSDamageTypes;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -14,6 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 public class BrimstoneFlamesDebuff extends MobEffect {
 
     public static final float FIRE_DAMAGE_BONUS = 0.15F;
+    private static final String FIRE_MAGIC_DAMAGE_TYPE = "irons_spellbooks:fire_magic";
 
     public BrimstoneFlamesDebuff() {
         super(MobEffectCategory.HARMFUL, 0xFF8A1A);
@@ -30,7 +30,7 @@ public class BrimstoneFlamesDebuff extends MobEffect {
         }
 
         boolean isVanillaFire = event.getSource().is(DamageTypeTags.IS_FIRE);
-        boolean isIssFireMagic = event.getSource().is(ISSDamageTypes.FIRE_MAGIC);
+        boolean isIssFireMagic = IronSpellbooksEffectCompat.isDamageSource(event.getSource(), FIRE_MAGIC_DAMAGE_TYPE);
         if (!isVanillaFire && !isIssFireMagic) {
             return;
         }

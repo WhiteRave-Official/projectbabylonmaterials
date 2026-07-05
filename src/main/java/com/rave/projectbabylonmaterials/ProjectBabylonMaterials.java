@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.rave.projectbabylonmaterials.config.PBMClientConfig;
 import com.rave.projectbabylonmaterials.config.PBMServerConfig;
 import com.rave.projectbabylonmaterials.handler.CritDamageHandler;
+import com.rave.projectbabylonmaterials.handler.LifestealHandler;
 import com.rave.projectbabylonmaterials.handler.LivingEntityHealthHandler;
 import com.rave.projectbabylonmaterials.handler.PlayerHealthHandler;
 import com.rave.projectbabylonmaterials.handler.VanillaEnchantmentRebalanceHandler;
@@ -49,6 +50,7 @@ public class ProjectBabylonMaterials {
         PBMRecipes.register(modBus);
         forgeBus.register(ArmorSetBonusManager.class);
         forgeBus.register(CritDamageHandler.class);
+        forgeBus.register(LifestealHandler.class);
         forgeBus.register(LivingEntityHealthHandler.class);
         forgeBus.register(PlayerHealthHandler.class);
         forgeBus.register(VanillaEnchantmentRebalanceHandler.class);

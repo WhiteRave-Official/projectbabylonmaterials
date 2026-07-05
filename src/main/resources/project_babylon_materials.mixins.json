@@ -13,7 +13,8 @@
     "ProtectionEnchantmentMixin",
     "SedpartiesEpicFightHandlerMixin",
     "AbstractArrowAccessor",
-    "MinecraftGlowingMixin"
+    "MinecraftGlowingMixin",
+    "ItemStackDurabilityMixin"
   ],
   "client": [
     "AbstractTrailParticleMixin",

@@ -35,6 +35,19 @@ public final class PBMClientConfig {
         return HOLDER.customCombatHudY.get();
     }
 
+    public static PhotonMode photonMode() {
+        return HOLDER.photonMode.get();
+    }
+
+    public static boolean useLitePhotonEffects() {
+        return photonMode() == PhotonMode.LITE;
+    }
+
+    public enum PhotonMode {
+        NORMAL,
+        LITE
+    }
+
     public enum CombatHudPosition {
         LEFT_OF_HOTBAR,
         RIGHT_OF_HOTBAR,
@@ -49,6 +62,7 @@ public final class PBMClientConfig {
         private final ForgeConfigSpec.EnumValue<CombatHudPosition> combatHudPosition;
         private final ForgeConfigSpec.IntValue customCombatHudX;
         private final ForgeConfigSpec.IntValue customCombatHudY;
+        private final ForgeConfigSpec.EnumValue<PhotonMode> photonMode;
 
         private Holder(ForgeConfigSpec.Builder builder) {
             builder.push("hud");
@@ -67,6 +81,12 @@ public final class PBMClientConfig {
             customCombatHudY = builder
                     .comment("Absolute Y position for the custom combat HUD when combatHudPosition=CUSTOM.")
                     .defineInRange("customCombatHudY", 4, -4096, 4096);
+            builder.pop();
+
+            builder.push("photon");
+            photonMode = builder
+                    .comment("Photon visual quality mode.", "NORMAL keeps full effects.", "LITE reduces particle counts, effect lifetime and spawn frequency for better performance.")
+                    .defineEnum("photonMode", PhotonMode.NORMAL);
             builder.pop();
         }
     }

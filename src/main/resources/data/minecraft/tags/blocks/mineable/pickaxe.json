@@ -10,8 +10,6 @@
     "project_babylon_materials:ruby_deepslate_ore",
     "project_babylon_materials:dragonsteel_block",
     "project_babylon_materials:everfrost_block",
-    "project_babylon_materials:ethereal_block",
-    "project_babylon_materials:reforge_table_block",
-    "project_babylon_materials:refinement_table_block"
+    "project_babylon_materials:ethereal_block"
   ]
 }

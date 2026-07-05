@@ -27,8 +27,20 @@ public final class PBAttributes {
             () -> new RangedAttribute("attribute.name.project_babylon_materials.healing_strength", 1.0D, 0.0D, 1024.0D)
                     .setSyncable(true));
 
+    public static final RegistryObject<Attribute> LIFESTEAL = ATTRIBUTES.register("lifesteal",
+            () -> new RangedAttribute("attribute.name.project_babylon_materials.lifesteal", 0.0D, 0.0D, 1024.0D)
+                    .setSyncable(true));
+
     public static final RegistryObject<Attribute> RANGED_DRAW_SPEED = ATTRIBUTES.register("ranged_draw_speed",
             () -> new RangedAttribute("attribute.name.project_babylon_materials.ranged_draw_speed", 0.0D, 0.0D, 1024.0D)
+                    .setSyncable(true));
+
+    public static final RegistryObject<Attribute> TOOL_EFFICIENCY = ATTRIBUTES.register("tool_efficiency",
+            () -> new RangedAttribute("attribute.name.project_babylon_materials.tool_efficiency", 0.0D, 0.0D, 1024.0D)
+                    .setSyncable(true));
+
+    public static final RegistryObject<Attribute> TOOL_DURABILITY = ATTRIBUTES.register("tool_durability",
+            () -> new RangedAttribute("attribute.name.project_babylon_materials.tool_durability", 0.0D, 0.0D, 1024.0D)
                     .setSyncable(true));
 
     private PBAttributes() {
@@ -44,7 +56,10 @@ public final class PBAttributes {
             event.add(entityType, CRIT_CHANCE.get());
             event.add(entityType, CRIT_DAMAGE.get());
             event.add(entityType, HEALING_STRENGTH.get());
+            event.add(entityType, LIFESTEAL.get());
             event.add(entityType, RANGED_DRAW_SPEED.get());
+            event.add(entityType, TOOL_EFFICIENCY.get());
+            event.add(entityType, TOOL_DURABILITY.get());
         }
     }
 }

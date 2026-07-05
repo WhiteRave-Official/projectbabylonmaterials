@@ -13,6 +13,7 @@ import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleConfig;
 import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
 import com.rave.projectbabylonmaterials.ProjectBabylonMaterials;
 import com.rave.projectbabylonmaterials.client.shadow.ShadowFormClientState;
+import com.rave.projectbabylonmaterials.config.PBMClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
@@ -40,6 +41,7 @@ public final class PBMPhotonEffectHelper {
     private static final Map<Integer, OrbitState> ACTIVE_MAGICAL_VEILS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_BASTION_FROST_AURAS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_BASTION_RULE_AURAS = new ConcurrentHashMap<>();
+    private static final Map<Integer, OrbitState> ACTIVE_BASTION_HEAVENS_GIFT_AURAS = new ConcurrentHashMap<>();
     private static final Quaternionf IDENTITY_ROTATION = new Quaternionf();
     private static final Vector3f UNIT_SCALE = new Vector3f(1.0F, 1.0F, 1.0F);
     private static final ResourceLocation PORTAL_TEXTURE = texture("dragon_descend_spell.png");
@@ -100,9 +102,35 @@ public final class PBMPhotonEffectHelper {
     private PBMPhotonEffectHelper() {
     }
 
+    private static boolean useLitePhotonEffects() {
+        return PBMClientConfig.useLitePhotonEffects();
+    }
+
+
+    private static int photonCount(int baseCount) {
+        if (!useLitePhotonEffects()) {
+            return baseCount;
+        }
+        return Math.max(1, Mth.ceil(baseCount * 0.45F));
+    }
+
+    private static int photonInterval(int baseInterval) {
+        if (!useLitePhotonEffects()) {
+            return baseInterval;
+        }
+        return Math.max(1, baseInterval * 2);
+    }
+
+    private static int photonLifetime(int baseLifetime) {
+        if (!useLitePhotonEffects()) {
+            return baseLifetime;
+        }
+        return Math.max(6, Mth.ceil(baseLifetime * 0.6F));
+    }
+
     private static boolean shouldRenderPersistentEffect(Entity entity, int tick) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.level == null || entity == null || !entity.isAlive()) {
+        if (minecraft.isPaused() || minecraft.player == null || minecraft.level == null || entity == null || !entity.isAlive()) {
             return false;
         }
 
@@ -126,7 +154,7 @@ public final class PBMPhotonEffectHelper {
 
     private static boolean shouldRenderTransientEffect(Entity entity, int tick) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.level == null || entity == null || !entity.isAlive()) {
+        if (minecraft.isPaused() || minecraft.player == null || minecraft.level == null || entity == null || !entity.isAlive()) {
             return false;
         }
 
@@ -150,7 +178,7 @@ public final class PBMPhotonEffectHelper {
 
     private static boolean shouldRenderPointEffect(ClientLevel level, Vec3 position) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.level != level) {
+        if (minecraft.isPaused() || minecraft.player == null || minecraft.level != level) {
             return false;
         }
 
@@ -168,16 +196,17 @@ public final class PBMPhotonEffectHelper {
     }
 
     private static int resolveDistanceInterval(double distanceSqr, boolean visible) {
+        int interval;
         if (distanceSqr <= PHOTON_NEAR_DISTANCE_SQR) {
-            return 1;
+            interval = 1;
+        } else if (distanceSqr <= PHOTON_MEDIUM_DISTANCE_SQR) {
+            interval = visible ? 2 : 3;
+        } else if (distanceSqr <= PHOTON_FAR_DISTANCE_SQR) {
+            interval = visible ? 3 : 5;
+        } else {
+            interval = visible ? 4 : 6;
         }
-        if (distanceSqr <= PHOTON_MEDIUM_DISTANCE_SQR) {
-            return visible ? 2 : 3;
-        }
-        if (distanceSqr <= PHOTON_FAR_DISTANCE_SQR) {
-            return visible ? 3 : 5;
-        }
-        return visible ? 4 : 6;
+        return useLitePhotonEffects() ? interval * 2 : interval;
     }
 
     private static boolean hasLineOfSight(ClientLevel level, Vec3 from, Vec3 to) {
@@ -302,6 +331,22 @@ public final class PBMPhotonEffectHelper {
         }
 
         ACTIVE_BASTION_RULE_AURAS.remove(entity.getId());
+    }
+
+    public static void startBastionHeavensGiftAura(Entity entity, float radiusBlocks) {
+        if (entity == null || !entity.isAlive() || entity.level() == null || !entity.level().isClientSide || ShadowFormClientState.isConcealed(entity)) {
+            return;
+        }
+
+        ACTIVE_BASTION_HEAVENS_GIFT_AURAS.put(entity.getId(), new OrbitState(entity.getId(), radiusBlocks));
+    }
+
+    public static void stopBastionHeavensGiftAura(Entity entity) {
+        if (entity == null) {
+            return;
+        }
+
+        ACTIVE_BASTION_HEAVENS_GIFT_AURAS.remove(entity.getId());
     }
     public static void spawnShadowFormTransition(Entity entity, boolean entering) {
         if (!(entity.level() instanceof ClientLevel level)) {
@@ -457,7 +502,7 @@ public final class PBMPhotonEffectHelper {
             double forwardBias = i == 0 ? 0.012D : 0.018D;
 
             for (int point = 0; point < 12; point++) {
-                double angle = (Math.PI * 2.0D * point) / 12.0D;
+                double angle = (Math.PI * 2.0D * point) / photonCount(12);
                 double x = Math.cos(angle) * radius;
                 double y = Math.sin(angle) * radius;
                 Vec3 offset = right.scale(x).add(up.scale(y));
@@ -480,8 +525,10 @@ public final class PBMPhotonEffectHelper {
         Vec3 origin = entity.position().add(0.0D, 0.05D, 0.0D);
         float spin = tickCount * 0.34F;
 
-        for (int i = 0; i < 12; i++) {
-            float layerProgress = i / 11.0F;
+        int layerCount = photonCount(12);
+        float layerDenominator = Math.max(1.0F, layerCount - 1.0F);
+        for (int i = 0; i < layerCount; i++) {
+            float layerProgress = i / layerDenominator;
             float layerHeight = height * layerProgress;
             float layerRadius = radius * (0.48F + (layerProgress * 0.95F));
             float angle = spin + (layerProgress * 5.8F) + ((i & 1) == 0 ? 0.0F : Mth.PI * 0.55F);
@@ -504,8 +551,9 @@ public final class PBMPhotonEffectHelper {
             }
         }
 
-        for (int ribbon = 0; ribbon < 4; ribbon++) {
-            float ribbonAngle = (spin * 1.55F) + ((Mth.TWO_PI / 4.0F) * ribbon);
+        int ribbonCount = photonCount(4);
+        for (int ribbon = 0; ribbon < ribbonCount; ribbon++) {
+            float ribbonAngle = (spin * 1.55F) + ((Mth.TWO_PI / ribbonCount) * ribbon);
             double ribbonRadius = radius * (0.18D + (0.055D * ribbon));
             double ribbonX = origin.x + Math.cos(ribbonAngle) * ribbonRadius;
             double ribbonZ = origin.z + Math.sin(ribbonAngle) * ribbonRadius;
@@ -556,8 +604,8 @@ public final class PBMPhotonEffectHelper {
         double baseY = origin.y + 0.08D;
         double upperY = origin.y + Math.max(0.9D, entity.getBbHeight() * 0.45D);
 
-        for (int i = 0; i < GLACIER_WAVE_PARTICLE_COUNT; i++) {
-            double angle = (Math.PI * 2.0D * i) / GLACIER_WAVE_PARTICLE_COUNT;
+        for (int i = 0; i < photonCount(GLACIER_WAVE_PARTICLE_COUNT); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(GLACIER_WAVE_PARTICLE_COUNT);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
 
@@ -593,7 +641,7 @@ public final class PBMPhotonEffectHelper {
         ParticleEmitter breathEmitter = createBreathEmitter();
         breathEmitter.emmit(effect, toVector(origin), breathRotation, UNIT_SCALE);
 
-        if ((projectile.tickCount % TRAIL_VISUAL_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(TRAIL_VISUAL_INTERVAL)) != 0) {
             return;
         }
 
@@ -610,7 +658,7 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
-        if ((projectile.tickCount % ENDER_PROJECTILE_PARTICLE_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(ENDER_PROJECTILE_PARTICLE_INTERVAL)) != 0) {
             return;
         }
 
@@ -642,8 +690,8 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        for (int i = 0; i < 24; i++) {
-            double angle = (Math.PI * 2.0D * i) / 24.0D;
+        for (int i = 0; i < photonCount(24); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(24);
             double speed = 0.12D + ((i & 1) * 0.035D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -668,7 +716,7 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
-        if ((projectile.tickCount % HOLY_PROJECTILE_PARTICLE_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(HOLY_PROJECTILE_PARTICLE_INTERVAL)) != 0) {
             return;
         }
 
@@ -700,8 +748,8 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        for (int i = 0; i < 14; i++) {
-            double angle = (Math.PI * 2.0D * i) / 14.0D;
+        for (int i = 0; i < photonCount(14); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(14);
             double speed = 0.1D + ((i & 1) * 0.03D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -725,7 +773,7 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
-        if ((projectile.tickCount % ICE_PROJECTILE_PARTICLE_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(ICE_PROJECTILE_PARTICLE_INTERVAL)) != 0) {
             return;
         }
 
@@ -757,8 +805,8 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        for (int i = 0; i < 24; i++) {
-            double angle = (Math.PI * 2.0D * i) / 24.0D;
+        for (int i = 0; i < photonCount(24); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(24);
             double speed = 0.11D + ((i & 1) * 0.025D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -782,7 +830,7 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
-        if ((projectile.tickCount % FIRE_PROJECTILE_PARTICLE_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(FIRE_PROJECTILE_PARTICLE_INTERVAL)) != 0) {
             return;
         }
 
@@ -816,8 +864,8 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        for (int i = 0; i < 24; i++) {
-            double angle = (Math.PI * 2.0D * i) / 24.0D;
+        for (int i = 0; i < photonCount(24); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(24);
             double speed = 0.18D + ((i & 1) * 0.05D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -828,8 +876,8 @@ public final class PBMPhotonEffectHelper {
                     .emmit(effect, toVector(hitPos.add(0.0D, 0.08D, 0.0D)), IDENTITY_ROTATION, UNIT_SCALE);
         }
 
-        for (int i = 0; i < 14; i++) {
-            double angle = (Math.PI * 2.0D * i) / 14.0D;
+        for (int i = 0; i < photonCount(14); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(14);
             double speed = 0.1D + ((i & 1) * 0.03D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -849,7 +897,7 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
-        if ((projectile.tickCount % GOLDEN_PROJECTILE_PARTICLE_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(GOLDEN_PROJECTILE_PARTICLE_INTERVAL)) != 0) {
             return;
         }
 
@@ -881,8 +929,8 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        for (int i = 0; i < 14; i++) {
-            double angle = (Math.PI * 2.0D * i) / 14.0D;
+        for (int i = 0; i < photonCount(14); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(14);
             double speed = 0.105D + ((i & 1) * 0.028D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -906,7 +954,7 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
-        if ((projectile.tickCount % DIAMOND_PROJECTILE_PARTICLE_INTERVAL) != 0) {
+        if ((projectile.tickCount % photonInterval(DIAMOND_PROJECTILE_PARTICLE_INTERVAL)) != 0) {
             return;
         }
 
@@ -938,8 +986,8 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        for (int i = 0; i < 24; i++) {
-            double angle = (Math.PI * 2.0D * i) / 24.0D;
+        for (int i = 0; i < photonCount(24); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(24);
             double speed = 0.18D + ((i & 1) * 0.05D);
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
@@ -961,6 +1009,10 @@ public final class PBMPhotonEffectHelper {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.isPaused()) {
+            return;
+        }
+
         ClientLevel level = minecraft.level;
         if (level == null) {
             ACTIVE_DRAGON_DESCEND_CASTS.clear();
@@ -969,6 +1021,7 @@ public final class PBMPhotonEffectHelper {
             ACTIVE_MAGICAL_VEILS.clear();
             ACTIVE_BASTION_FROST_AURAS.clear();
             ACTIVE_BASTION_RULE_AURAS.clear();
+            ACTIVE_BASTION_HEAVENS_GIFT_AURAS.clear();
             return;
         }
 
@@ -1050,6 +1103,19 @@ public final class PBMPhotonEffectHelper {
             }
             state.tick++;
         }
+
+        for (OrbitState state : ACTIVE_BASTION_HEAVENS_GIFT_AURAS.values()) {
+            Entity entity = level.getEntity(state.entityId);
+            if (entity == null || !entity.isAlive()) {
+                ACTIVE_BASTION_HEAVENS_GIFT_AURAS.remove(state.entityId);
+                continue;
+            }
+
+            if (!ShadowFormClientState.isConcealed(entity) && shouldRenderPersistentEffect(entity, state.tick)) {
+                spawnBastionHeavensGiftAura(effect, entity, state.tick, state.radiusBlocks);
+            }
+            state.tick++;
+        }
 
     }
     private static void spawnBastionFrostAura(StaticLevelEffect effect, Entity entity, int tick, float radiusBlocks) {
@@ -1057,9 +1123,9 @@ public final class PBMPhotonEffectHelper {
         double baseY = entity.getY() + 0.08D;
         double outerRadius = Math.max(1.2D, radiusBlocks - 0.2D);
         double innerRadius = Math.max(0.8D, outerRadius * 0.56D);
-        float outerScale = Mth.clamp(radiusBlocks / 8.0F, 0.45F, 1.35F);
-        for (int i = 0; i < 10; i++) {
-            float angle = baseAngle + ((Mth.TWO_PI / 10.0F) * i);
+        float outerScale = Mth.clamp(radiusBlocks / photonCount(8), 0.45F, 1.35F);
+        for (int i = 0; i < photonCount(10); i++) {
+            float angle = baseAngle + ((Mth.TWO_PI / photonCount(10)) * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double radius = outerRadius + (((i & 1) == 0 ? 0.18D : -0.06D) * outerScale);
@@ -1069,8 +1135,8 @@ public final class PBMPhotonEffectHelper {
                     .emmit(effect, new Vector3f((float) x, (float) baseY, (float) z), IDENTITY_ROTATION, UNIT_SCALE);
         }
 
-        for (int i = 0; i < 6; i++) {
-            float angle = -baseAngle * 0.82F + ((Mth.TWO_PI / 6.0F) * i);
+        for (int i = 0; i < photonCount(6); i++) {
+            float angle = -baseAngle * 0.82F + ((Mth.TWO_PI / photonCount(6)) * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double x = entity.getX() + (cos * innerRadius);
@@ -1086,16 +1152,16 @@ public final class PBMPhotonEffectHelper {
         double waistY = entity.getY() + Math.max(0.65D, entity.getBbHeight() * 0.42D);
         double outerRadius = Math.max(1.2D, radiusBlocks - 0.2D);
         double innerRadius = Math.max(0.82D, outerRadius * 0.55D);
-        for (int i = 0; i < 8; i++) {
-            float angle = baseAngle + ((Mth.TWO_PI / 8.0F) * i);
+        for (int i = 0; i < photonCount(8); i++) {
+            float angle = baseAngle + ((Mth.TWO_PI / photonCount(8)) * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             createTrailEmitter(PORTAL_TEXTURE, 0.3F, 14, 0xFFD7C2FF, -sin * 0.026D, 0.008D, cos * 0.026D, (i & 1) == 0 ? 18.0F : -18.0F, angle * Mth.RAD_TO_DEG)
                     .emmit(effect, new Vector3f((float) (entity.getX() + (cos * outerRadius)), (float) groundY, (float) (entity.getZ() + (sin * outerRadius))), IDENTITY_ROTATION, new Vector3f(1.2F, 1.0F, 1.2F));
         }
 
-        for (int i = 0; i < 5; i++) {
-            float angle = -baseAngle * 0.9F + ((Mth.TWO_PI / 5.0F) * i);
+        for (int i = 0; i < photonCount(5); i++) {
+            float angle = -baseAngle * 0.9F + ((Mth.TWO_PI / photonCount(5)) * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             createTrailEmitter(PORTAL_TEXTURE, 0.38F, 12, 0xFFF1E8FF, -cos * 0.014D, 0.016D, -sin * 0.014D, (i & 1) == 0 ? 12.0F : -12.0F, -angle * Mth.RAD_TO_DEG)
@@ -1103,12 +1169,44 @@ public final class PBMPhotonEffectHelper {
         }
     }
 
+    private static void spawnBastionHeavensGiftAura(StaticLevelEffect effect, Entity entity, int tick, float radiusBlocks) {
+        float baseAngle = tick * 0.13F;
+        double groundY = entity.getY() + 0.12D;
+        double chestY = entity.getY() + Math.max(0.82D, entity.getBbHeight() * 0.52D);
+        double outerRadius = Math.max(1.2D, radiusBlocks - 0.18D);
+        double middleRadius = Math.max(0.9D, outerRadius * 0.68D);
+        double innerRadius = Math.max(0.7D, outerRadius * 0.38D);
+
+        for (int i = 0; i < photonCount(9); i++) {
+            float angle = baseAngle + ((Mth.TWO_PI / photonCount(9)) * i);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            createTrailEmitter(HOLY_TEXTURE, 0.28F, 15, 0xFFFFF6D8, -sin * 0.018D, 0.014D, cos * 0.018D, (i & 1) == 0 ? 14.0F : -14.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) (entity.getX() + (cos * outerRadius)), (float) groundY, (float) (entity.getZ() + (sin * outerRadius))), IDENTITY_ROTATION, new Vector3f(1.18F, 1.0F, 1.18F));
+        }
+
+        for (int i = 0; i < photonCount(6); i++) {
+            float angle = -baseAngle * 0.72F + ((Mth.TWO_PI / photonCount(6)) * i);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            createTrailEmitter(HEAL_TEXTURE, 0.24F, 13, 0xFFE9FFE6, -cos * 0.01D, 0.03D, -sin * 0.01D, (i & 1) == 0 ? 10.0F : -10.0F, -angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) (entity.getX() + (cos * middleRadius)), (float) (groundY + 0.18D), (float) (entity.getZ() + (sin * middleRadius))), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        for (int i = 0; i < photonCount(4); i++) {
+            float angle = baseAngle * 1.35F + ((Mth.TWO_PI / photonCount(4)) * i);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            createTrailEmitter(HOLY_TEXTURE, 0.34F, 12, 0xFFFFFFFF, -sin * 0.012D, 0.018D, cos * 0.012D, (i & 1) == 0 ? 12.0F : -12.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) (entity.getX() + (cos * innerRadius)), (float) chestY, (float) (entity.getZ() + (sin * innerRadius))), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+    }
     private static void spawnOrbit(StaticLevelEffect effect, Entity entity, int tick) {
         float baseAngle = (tick * ROTATION_SPEED) % Mth.TWO_PI;
-        for (int i = 0; i < ORBIT_PARTICLES_PER_TICK; i++) {
-            float angle = baseAngle + ((Mth.TWO_PI / ORBIT_PARTICLES_PER_TICK) * i);
+        for (int i = 0; i < photonCount(ORBIT_PARTICLES_PER_TICK); i++) {
+            float angle = baseAngle + ((Mth.TWO_PI / photonCount(ORBIT_PARTICLES_PER_TICK)) * i);
             emitPhotonParticle(effect, entity, angle, INNER_RADIUS, INNER_HEIGHT, 0.24F, 7, 0xFFFFFFFF, 0.0D, -0.01D, 0.0D, angle * Mth.RAD_TO_DEG, 26.0F);
-            emitPhotonParticle(effect, entity, angle + (Mth.TWO_PI / 8.0F), OUTER_RADIUS, OUTER_HEIGHT, 0.32F, 7, 0xFFE8D8FF, 0.0D, 0.018D, 0.0D, -angle * Mth.RAD_TO_DEG, -34.0F);
+            emitPhotonParticle(effect, entity, angle + (Mth.TWO_PI / photonCount(8)), OUTER_RADIUS, OUTER_HEIGHT, 0.32F, 7, 0xFFE8D8FF, 0.0D, 0.018D, 0.0D, -angle * Mth.RAD_TO_DEG, -34.0F);
         }
     }
 
@@ -1119,11 +1217,11 @@ public final class PBMPhotonEffectHelper {
         double baseZ = entity.getZ();
         double topY = entity.getY() + entity.getBbHeight() + 0.35D;
 
-        for (int i = 0; i < GLACIER_VORTEX_PARTICLES_PER_TICK; i++) {
-            float progress = i / (float) GLACIER_VORTEX_PARTICLES_PER_TICK;
+        for (int i = 0; i < photonCount(GLACIER_VORTEX_PARTICLES_PER_TICK); i++) {
+            float progress = i / (float) photonCount(GLACIER_VORTEX_PARTICLES_PER_TICK);
             double swirlHeight = progress * Math.max(1.35D, entity.getBbHeight() + 0.2D);
             double radius = Mth.lerp(progress, 1.3D, 0.12D);
-            float angle = baseAngle + (progress * 3.6F) + ((Mth.TWO_PI / GLACIER_VORTEX_PARTICLES_PER_TICK) * i);
+            float angle = baseAngle + (progress * 3.6F) + ((Mth.TWO_PI / photonCount(GLACIER_VORTEX_PARTICLES_PER_TICK)) * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double x = baseX + cos * radius;
@@ -1149,11 +1247,11 @@ public final class PBMPhotonEffectHelper {
         double baseY = entity.getY() + 0.08D;
         double baseZ = entity.getZ();
 
-        for (int i = 0; i < FIRE_STORM_CAST_PARTICLES_PER_TICK; i++) {
-            float progress = i / (float) FIRE_STORM_CAST_PARTICLES_PER_TICK;
+        for (int i = 0; i < photonCount(FIRE_STORM_CAST_PARTICLES_PER_TICK); i++) {
+            float progress = i / (float) photonCount(FIRE_STORM_CAST_PARTICLES_PER_TICK);
             double swirlHeight = progress * Math.max(1.6D, entity.getBbHeight() + 0.55D);
             double radius = Mth.lerp(progress, 1.15D, 0.22D);
-            float angle = baseAngle + (progress * 4.4F) + ((Mth.TWO_PI / FIRE_STORM_CAST_PARTICLES_PER_TICK) * i);
+            float angle = baseAngle + (progress * 4.4F) + ((Mth.TWO_PI / photonCount(FIRE_STORM_CAST_PARTICLES_PER_TICK)) * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double x = baseX + cos * radius;
@@ -1176,12 +1274,12 @@ public final class PBMPhotonEffectHelper {
     }
 
     private static void spawnMagicalVeilOrbit(StaticLevelEffect effect, Entity entity, int tick) {
-        float angleStep = Mth.TWO_PI / MAGICAL_VEIL_PARTICLES_PER_TICK;
+        float angleStep = Mth.TWO_PI / photonCount(MAGICAL_VEIL_PARTICLES_PER_TICK);
         float baseAngle = tick * MAGICAL_VEIL_ROTATION_SPEED;
         double baseY = entity.getY() + Math.max(0.7D, entity.getBbHeight() * 0.52D);
         double radius = Math.max(0.95D, entity.getBbWidth() * 0.9D);
 
-        for (int i = 0; i < MAGICAL_VEIL_PARTICLES_PER_TICK; i++) {
+        for (int i = 0; i < photonCount(MAGICAL_VEIL_PARTICLES_PER_TICK); i++) {
             float angle = baseAngle + (angleStep * i);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
@@ -1207,8 +1305,8 @@ public final class PBMPhotonEffectHelper {
         double groundY = origin.y + 0.08D;
         double torsoY = origin.y + Math.max(0.95D, entity.getBbHeight() * 0.58D);
 
-        for (int i = 0; i < FIRE_STORM_BURST_PARTICLE_COUNT; i++) {
-            double angle = (Math.PI * 2.0D * i) / FIRE_STORM_BURST_PARTICLE_COUNT;
+        for (int i = 0; i < photonCount(FIRE_STORM_BURST_PARTICLE_COUNT); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(FIRE_STORM_BURST_PARTICLE_COUNT);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double outerSpeed = 0.12D + ((i & 1) == 0 ? 0.03D : 0.0D);
@@ -1363,8 +1461,8 @@ public final class PBMPhotonEffectHelper {
         double groundY = origin.y + 0.08D;
         double torsoY = origin.y + Math.max(0.9D, entity.getBbHeight() * 0.62D);
 
-        for (int i = 0; i < 18; i++) {
-            double angle = (Math.PI * 2.0D * i) / 18.0D;
+        for (int i = 0; i < photonCount(18); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(18);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double outerSpeed = 0.085D + ((i & 1) == 0 ? 0.012D : 0.0D);
@@ -1373,8 +1471,8 @@ public final class PBMPhotonEffectHelper {
                     .emmit(effect, new Vector3f((float) origin.x, (float) groundY, (float) origin.z), IDENTITY_ROTATION, new Vector3f(1.45F, 1.0F, 1.45F));
         }
 
-        for (int i = 0; i < 12; i++) {
-            double angle = (Math.PI * 2.0D * i) / 12.0D;
+        for (int i = 0; i < photonCount(12); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(12);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double innerSpeed = 0.055D + ((i % 3) * 0.005D);
@@ -1397,8 +1495,8 @@ public final class PBMPhotonEffectHelper {
         double groundY = origin.y + 0.08D;
         double torsoY = origin.y + Math.max(0.9D, entity.getBbHeight() * 0.62D);
 
-        for (int i = 0; i < BLESSING_BURST_PARTICLE_COUNT; i++) {
-            double angle = (Math.PI * 2.0D * i) / BLESSING_BURST_PARTICLE_COUNT;
+        for (int i = 0; i < photonCount(BLESSING_BURST_PARTICLE_COUNT); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(BLESSING_BURST_PARTICLE_COUNT);
             double cos = Math.cos(angle);
             double sin = Math.sin(angle);
             double outerSpeed = 0.13D + ((i & 1) == 0 ? 0.02D : 0.0D);
@@ -1435,8 +1533,8 @@ public final class PBMPhotonEffectHelper {
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
         double baseY = entity.getY() + entity.getBbHeight() * 0.72D;
-        for (int i = 0; i < BURST_PARTICLE_COUNT; i++) {
-            double angle = (Math.PI * 2.0D * i) / BURST_PARTICLE_COUNT;
+        for (int i = 0; i < photonCount(BURST_PARTICLE_COUNT); i++) {
+            double angle = (Math.PI * 2.0D * i) / photonCount(BURST_PARTICLE_COUNT);
             double spread = BURST_SPEED * (0.85D + ((i & 1) * 0.2D));
             double vx = Math.cos(angle) * spread;
             double vz = Math.sin(angle) * spread;
@@ -1455,19 +1553,19 @@ public final class PBMPhotonEffectHelper {
         Vec3 centerLeft = center.add(right.scale(0.5D));
         Vec3 centerRight = center.add(right.scale(-0.5D));
 
-        createTrailEmitter(PORTAL_TEXTURE, 0.52F, TRAIL_VISUAL_LIFETIME, 0xFFD8C0FF, 0.0D, 0.01D, 0.0D, 10.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.52F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFD8C0FF, 0.0D, 0.01D, 0.0D, 10.0F)
                 .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(1.9F, 1.0F, 1.9F));
-        createTrailEmitter(PORTAL_TEXTURE, 0.46F, TRAIL_VISUAL_LIFETIME, 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, -8.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.46F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, -8.0F)
                 .emmit(effect, toVector(centerLeft), IDENTITY_ROTATION, new Vector3f(1.45F, 1.0F, 1.45F));
-        createTrailEmitter(PORTAL_TEXTURE, 0.46F, TRAIL_VISUAL_LIFETIME, 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, 8.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.46F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, 8.0F)
                 .emmit(effect, toVector(centerRight), IDENTITY_ROTATION, new Vector3f(1.45F, 1.0F, 1.45F));
-        createTrailEmitter(PORTAL_TEXTURE, 0.42F, TRAIL_VISUAL_LIFETIME, 0xFFFFFFFF, right.x * 0.05D, 0.03D, right.z * 0.05D, 18.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.42F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFFFFFFF, right.x * 0.05D, 0.03D, right.z * 0.05D, 18.0F)
                 .emmit(effect, toVector(leftEdge.add(forwardOffset)), IDENTITY_ROTATION, UNIT_SCALE);
-        createTrailEmitter(PORTAL_TEXTURE, 0.42F, TRAIL_VISUAL_LIFETIME, 0xFFE8D8FF, -right.x * 0.05D, 0.03D, -right.z * 0.05D, -18.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.42F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFE8D8FF, -right.x * 0.05D, 0.03D, -right.z * 0.05D, -18.0F)
                 .emmit(effect, toVector(rightEdge.add(forwardOffset)), IDENTITY_ROTATION, UNIT_SCALE);
-        createTrailEmitter(PORTAL_TEXTURE, 0.3F, TRAIL_VISUAL_LIFETIME - 8, 0xFFF3EAFF, right.x * 0.03D, 0.015D, right.z * 0.03D, 24.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.3F, photonLifetime(TRAIL_VISUAL_LIFETIME) - 8, 0xFFF3EAFF, right.x * 0.03D, 0.015D, right.z * 0.03D, 24.0F)
                 .emmit(effect, toVector(center.add(right.scale(0.75D))), IDENTITY_ROTATION, UNIT_SCALE);
-        createTrailEmitter(PORTAL_TEXTURE, 0.3F, TRAIL_VISUAL_LIFETIME - 8, 0xFFF3EAFF, -right.x * 0.03D, 0.015D, -right.z * 0.03D, -24.0F)
+        createTrailEmitter(PORTAL_TEXTURE, 0.3F, photonLifetime(TRAIL_VISUAL_LIFETIME) - 8, 0xFFF3EAFF, -right.x * 0.03D, 0.015D, -right.z * 0.03D, -24.0F)
                 .emmit(effect, toVector(center.add(right.scale(-0.75D))), IDENTITY_ROTATION, UNIT_SCALE);
     }
 
@@ -1478,7 +1576,7 @@ public final class PBMPhotonEffectHelper {
         emitter.setName("dragon_descend_breath");
         config.setDuration(1);
         config.setLooping(false);
-        config.setMaxParticles(BREATH_PARTICLE_COUNT);
+        config.setMaxParticles(photonCount(BREATH_PARTICLE_COUNT));
         config.setStartLifetime(NumberFunction.constant(10));
         config.setStartSpeed(NumberFunction.constant(0.9F));
         config.setStartSize(new NumberFunction3(0.42F, 0.42F, 0.42F));
@@ -1491,7 +1589,7 @@ public final class PBMPhotonEffectHelper {
         burst.cycles = 1;
         burst.interval = 1;
         burst.probability = 1.0F;
-        burst.setCount(NumberFunction.constant(BREATH_PARTICLE_COUNT));
+        burst.setCount(NumberFunction.constant(photonCount(BREATH_PARTICLE_COUNT)));
         config.emission.getBursts().add(burst);
 
         Cone cone = new Cone();

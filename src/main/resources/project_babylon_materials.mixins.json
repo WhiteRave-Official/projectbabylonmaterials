@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.rave.projectbabylonmaterials.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "LivingEntityArmorMixin",
+    "IronsSpellbooksDamageSourcesMixin",
+    "EpicFightArmorCapabilityBuilderMixin",
+    "AbstractArrowAccessor",
+    "AnvilMenuEnchantmentSlotsMixin",
+    "ItemStackRarityNameMixin",
+    "ItemStackEnchantableMixin",
+    "CrossbowItemDrawSpeedMixin"
+  ],
+  "client": [
+    "AbstractContainerScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

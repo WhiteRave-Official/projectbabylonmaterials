@@ -1,0 +1,12 @@
+{
+  "cookingtime": 200,
+  "experience": 0.1,
+  "ingredient": {
+    "item": "project_babylon_materials:netherite_plate"
+  },
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "result": {
+    "id": "project_babylon_materials:netherite_nugget"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "roll_weight": 30,
+  "base_enchant_slots": 1,
+  "enchant_bonus_chance": 0,
+  "base_gem_slots": 0,
+  "gem_slot_bonus_chance": 0,
+  "material": "project_babylon_materials:pure_tear",
+  "reforge_material_count": 2,
+  "required_dust": 2,
+  "required_xp": 3,
+  "success_chance": 55,
+  "socket_xp": 2,
+  "extraction_xp": 1,
+  "max_upgrade_attempts": 3
+}

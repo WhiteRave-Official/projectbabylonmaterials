@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "project_babylon_materials:item/bowl_and_mortar"
+  }
+}

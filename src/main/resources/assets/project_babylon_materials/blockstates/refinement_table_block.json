@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north,lit=false": { "model": "project_babylon_materials:block/refinement_table_block", "y": 0 },
+    "facing=east,lit=false": { "model": "project_babylon_materials:block/refinement_table_block", "y": 90 },
+    "facing=south,lit=false": { "model": "project_babylon_materials:block/refinement_table_block", "y": 180 },
+    "facing=west,lit=false": { "model": "project_babylon_materials:block/refinement_table_block", "y": 270 }
+  }
+}

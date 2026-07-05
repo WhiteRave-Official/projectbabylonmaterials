@@ -1,0 +1,14 @@
+{
+  "roll_weight": 45,
+  "base_enchant_slots": 0,
+  "enchant_bonus_chance": 0,
+  "base_gem_slots": 0,
+  "gem_slot_bonus_chance": 0,
+  "reforge_material_count": 2,
+  "required_dust": 0,
+  "required_xp": 0,
+  "success_chance": 75,
+  "socket_xp": 1,
+  "extraction_xp": 1,
+  "max_upgrade_attempts": 3
+}

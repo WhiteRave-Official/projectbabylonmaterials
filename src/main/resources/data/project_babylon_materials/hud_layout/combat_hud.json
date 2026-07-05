@@ -1,0 +1,22 @@
+{
+  "stats_box": {
+    "anchor": "bottom_center",
+    "align_x": "end",
+    "align_y": "end",
+    "offset_x": -97,
+    "offset_y": -8,
+    "scale": 1.0,
+    "visible": true,
+    "shift_for_offhand": true
+  },
+  "dragonsteel_passive": {
+    "anchor": "bottom_center",
+    "align_x": "start",
+    "align_y": "start",
+    "offset_x": 99,
+    "offset_y": -19,
+    "scale": 1.0,
+    "visible": true,
+    "shift_for_offhand": false
+  }
+}

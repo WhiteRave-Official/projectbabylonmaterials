@@ -1,0 +1,36 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "project_babylon_materials:dragonsteel_ingot"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "project_babylon_materials:materials/dragonsteel/block_from_ingots"
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "project_babylon_materials:materials/dragonsteel/block_from_ingots"
+    ]
+  },
+  "requirements": [
+    [
+      "has_materials"
+    ],
+    [
+      "has_the_recipe"
+    ]
+  ]
+}

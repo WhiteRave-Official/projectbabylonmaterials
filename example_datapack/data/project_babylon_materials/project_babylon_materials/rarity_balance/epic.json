@@ -1,0 +1,15 @@
+{
+  "roll_weight": 7,
+  "base_enchant_slots": 2,
+  "enchant_bonus_chance": 45,
+  "base_gem_slots": 1,
+  "gem_slot_bonus_chance": 0,
+  "material": "project_babylon_materials:magic_crystal",
+  "reforge_material_count": 2,
+  "required_dust": 6,
+  "required_xp": 7,
+  "success_chance": 20,
+  "socket_xp": 4,
+  "extraction_xp": 3,
+  "max_upgrade_attempts": 3
+}

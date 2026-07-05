@@ -1,0 +1,2 @@
+tellraw @s [{"color":"dark_aqua","fallback":"[Parties] ","translate":"messages.sedparties.api.partiesprefix"},{"color":"gold","fallback":"Thanks for using Parties!","translate":"advancements.sedparties.bettertogether.desc"}]
+tellraw @s [{"color":"dark_aqua","fallback":"[Parties] ","translate":"messages.sedparties.api.partiesprefix"},{"color":"gray","fallback":"Type %s for more info.","hoverEvent":{"action":"show_text","value":[{"text":"/party help","color":"gold"}]},"italic":true,"translate":"advancements.sedparties.bettertogether.desc2","with":["/party help"]}]

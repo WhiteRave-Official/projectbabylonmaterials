@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NCN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "project_babylon_materials:diamond_ingot_nugget"
+    },
+    "C": {
+      "item": "project_babylon_materials:cloth"
+    }
+  },
+  "result": {
+    "id": "project_babylon_materials:diamond_cloth",
+    "count": 4
+  }
+}

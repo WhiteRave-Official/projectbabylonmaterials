@@ -1,0 +1,15 @@
+{
+  "roll_weight": 15,
+  "base_enchant_slots": 1,
+  "enchant_bonus_chance": 30,
+  "base_gem_slots": 0,
+  "gem_slot_bonus_chance": 35,
+  "material": "project_babylon_materials:ancient_amber",
+  "reforge_material_count": 2,
+  "required_dust": 4,
+  "required_xp": 5,
+  "success_chance": 35,
+  "socket_xp": 3,
+  "extraction_xp": 2,
+  "max_upgrade_attempts": 3
+}

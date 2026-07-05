@@ -1,0 +1,15 @@
+{
+  "roll_weight": 3,
+  "base_enchant_slots": 3,
+  "enchant_bonus_chance": 50,
+  "base_gem_slots": 2,
+  "gem_slot_bonus_chance": 0,
+  "material": "project_babylon_materials:fate_orb",
+  "reforge_material_count": 2,
+  "required_dust": 8,
+  "required_xp": 10,
+  "success_chance": 0,
+  "socket_xp": 5,
+  "extraction_xp": 4,
+  "max_upgrade_attempts": 0
+}

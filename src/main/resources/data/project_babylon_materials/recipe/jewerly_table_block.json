@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LGL",
+    "LJL",
+    "SSS"
+  ],
+  "key": {
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "J": {
+      "tag": "project_babylon_materials:gems"
+    },
+    "S": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "id": "project_babylon_materials:jewerly_table_block",
+    "count": 1
+  }
+}

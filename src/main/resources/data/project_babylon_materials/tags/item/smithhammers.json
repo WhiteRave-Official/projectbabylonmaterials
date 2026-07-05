@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "project_babylon_materials:diamond_smithhammer",
+    "project_babylon_materials:golden_smithhammer",
+    "project_babylon_materials:iron_smithhammer",
+    "project_babylon_materials:netherite_smithhammer"
+  ]
+}

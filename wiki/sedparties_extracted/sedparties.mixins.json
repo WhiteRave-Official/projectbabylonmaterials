@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "package": "io.sedu.mc.parties.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "refmap": "mixins.sedparties.refmap.json",
+  "mixins": [
+    "LivingEntityAccessor",
+    "MobAccessor",
+    "apotheosis.ApothBossMixin",
+    "ironsspellbooks.PlayerMagicDataMixin",
+    "vanilla.EntityMixin",
+    "vanilla.EntitySelectorMixin",
+    "vanilla.ExperienceCommandMixin",
+    "vanilla.PlayerMixin",
+    "vanilla.ServerPlayerMixin"
+  ],
+  "client": [
+    "ironsspellbooks.ClientCastHelperMixin",
+    "ironsspellbooks.ClientMagicDataMixin",
+    "vanilla.ChatComponentMixin",
+    "vanilla.ChatScreenMixin",
+    "vanilla.ForgeGuiMixin",
+    "vanilla.GuiMixin",
+    "vanilla.MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

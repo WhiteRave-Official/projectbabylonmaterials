@@ -1,0 +1,76 @@
+{
+  "mappings": {
+    "io/sedu/mc/parties/mixin/vanilla/EntitySelectorMixin": {
+      "playerName": "f_121120_:Ljava/lang/String;"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/ChatScreenMixin": {
+      "render": "Lnet/minecraft/client/gui/screens/ChatScreen;m_88315_(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"
+    },
+    "io/sedu/mc/parties/mixin/LivingEntityAccessor": {
+      "shouldDropLoot": "m_6125_()Z"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/ServerPlayerMixin": {
+      "onEffectUpdated": "Lnet/minecraft/server/level/ServerPlayer;m_141973_(Lnet/minecraft/world/effect/MobEffectInstance;ZLnet/minecraft/world/entity/Entity;)V",
+      "onEffectAdded": "Lnet/minecraft/server/level/ServerPlayer;m_142540_(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)V",
+      "onEffectRemoved": "Lnet/minecraft/server/level/ServerPlayer;m_7285_(Lnet/minecraft/world/effect/MobEffectInstance;)V"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/EntityMixin": {
+      "isInvisibleTo": "Lnet/minecraft/world/entity/Entity;m_20177_(Lnet/minecraft/world/entity/player/Player;)Z",
+      "isCurrentlyGlowing": "Lnet/minecraft/world/entity/Entity;m_142038_()Z"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/ExperienceCommandMixin": {
+      "addExperience": "Lnet/minecraft/server/commands/ExperienceCommand;m_137316_(Lnet/minecraft/commands/CommandSourceStack;Ljava/util/Collection;ILnet/minecraft/server/commands/ExperienceCommand$Type;)I"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/GuiMixin": {
+      "renderHotbar": "Lnet/minecraft/client/gui/Gui;m_280518_(FLnet/minecraft/client/gui/GuiGraphics;)V"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/PlayerMixin": {
+      "giveExperiencePoints(I)V": "Lnet/minecraft/world/entity/player/Player;m_6756_(I)V"
+    },
+    "io/sedu/mc/parties/mixin/vanilla/MinecraftMixin": {
+      "resizeDisplay": "Lnet/minecraft/client/Minecraft;m_5741_()V"
+    },
+    "io/sedu/mc/parties/mixin/MobAccessor": {
+      "dropFromLootTable": "m_7625_(Lnet/minecraft/world/damagesource/DamageSource;Z)V",
+      "dropCustomDeathLoot": "m_7472_(Lnet/minecraft/world/damagesource/DamageSource;IZ)V"
+    }
+  },
+  "data": {
+    "searge": {
+      "io/sedu/mc/parties/mixin/vanilla/EntitySelectorMixin": {
+        "playerName": "f_121120_:Ljava/lang/String;"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/ChatScreenMixin": {
+        "render": "Lnet/minecraft/client/gui/screens/ChatScreen;m_88315_(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"
+      },
+      "io/sedu/mc/parties/mixin/LivingEntityAccessor": {
+        "shouldDropLoot": "m_6125_()Z"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/ServerPlayerMixin": {
+        "onEffectUpdated": "Lnet/minecraft/server/level/ServerPlayer;m_141973_(Lnet/minecraft/world/effect/MobEffectInstance;ZLnet/minecraft/world/entity/Entity;)V",
+        "onEffectAdded": "Lnet/minecraft/server/level/ServerPlayer;m_142540_(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)V",
+        "onEffectRemoved": "Lnet/minecraft/server/level/ServerPlayer;m_7285_(Lnet/minecraft/world/effect/MobEffectInstance;)V"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/EntityMixin": {
+        "isInvisibleTo": "Lnet/minecraft/world/entity/Entity;m_20177_(Lnet/minecraft/world/entity/player/Player;)Z",
+        "isCurrentlyGlowing": "Lnet/minecraft/world/entity/Entity;m_142038_()Z"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/ExperienceCommandMixin": {
+        "addExperience": "Lnet/minecraft/server/commands/ExperienceCommand;m_137316_(Lnet/minecraft/commands/CommandSourceStack;Ljava/util/Collection;ILnet/minecraft/server/commands/ExperienceCommand$Type;)I"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/GuiMixin": {
+        "renderHotbar": "Lnet/minecraft/client/gui/Gui;m_280518_(FLnet/minecraft/client/gui/GuiGraphics;)V"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/PlayerMixin": {
+        "giveExperiencePoints(I)V": "Lnet/minecraft/world/entity/player/Player;m_6756_(I)V"
+      },
+      "io/sedu/mc/parties/mixin/vanilla/MinecraftMixin": {
+        "resizeDisplay": "Lnet/minecraft/client/Minecraft;m_5741_()V"
+      },
+      "io/sedu/mc/parties/mixin/MobAccessor": {
+        "dropFromLootTable": "m_7625_(Lnet/minecraft/world/damagesource/DamageSource;Z)V",
+        "dropCustomDeathLoot": "m_7472_(Lnet/minecraft/world/damagesource/DamageSource;IZ)V"
+      }
+    }
+  }
+}

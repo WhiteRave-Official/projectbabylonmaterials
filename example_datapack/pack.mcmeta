@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "PBM Balance — full example datapack (every setting, default values)",
+    "pack_format": 48,
+    "supported_formats": { "min_inclusive": 48, "max_inclusive": 57 }
+  }
+}

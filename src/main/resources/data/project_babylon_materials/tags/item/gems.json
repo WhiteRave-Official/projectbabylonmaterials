@@ -1,0 +1,27 @@
+{
+  "replace": false,
+  "values": [
+    "project_babylon_materials:ruby_stone",
+    "project_babylon_materials:sapphire_stone",
+    "project_babylon_materials:topaz_stone",
+    "project_babylon_materials:white_stone",
+    "project_babylon_materials:black_stone",
+    "project_babylon_materials:chrizolite_stone",
+    "project_babylon_materials:malachite_stone",
+    "project_babylon_materials:garnet_stone",
+    "project_babylon_materials:lapis_stone",
+    "project_babylon_materials:mana_stone",
+    "project_babylon_materials:end_stone",
+    "project_babylon_materials:blood_pearl",
+    "project_babylon_materials:northern_stone",
+    "project_babylon_materials:pyrite_stone",
+    "project_babylon_materials:moon_pearl",
+    "project_babylon_materials:dragon_stone",
+    "project_babylon_materials:nature_stone",
+    "project_babylon_materials:diamond_stone",
+    "project_babylon_materials:amethyst_stone",
+    "project_babylon_materials:health_stone",
+    "project_babylon_materials:emerald_stone",
+    "project_babylon_materials:aquamarine_stone"
+  ]
+}

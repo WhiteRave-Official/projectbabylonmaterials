@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "entries": [
+    "project_babylon_materials:chest_rarity",
+    "project_babylon_materials:gem_loot",
+    "project_babylon_materials:material_loot"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "III",
+    "SHS",
+    "SOS"
+  ],
+  "key": {
+    "I": {
+      "item": "project_babylon_materials:steel_ingot"
+    },
+    "S": {
+      "item": "minecraft:stone"
+    },
+    "H": {
+      "item": "project_babylon_materials:iron_smithhammer"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "id": "project_babylon_materials:reforge_table_block",
+    "count": 1
+  }
+}

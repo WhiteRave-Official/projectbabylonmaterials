@@ -1,6 +1,7 @@
 package com.rave.projectbabylonmaterials.network;
 
 import com.rave.projectbabylonmaterials.ProjectBabylonMaterials;
+import com.rave.projectbabylonmaterials.network.client.ClientboundArmorPhotonEffectPacket;
 import com.rave.projectbabylonmaterials.network.client.ClientboundCritEffectPacket;
 import com.rave.projectbabylonmaterials.network.client.ClientboundDragonsteelCooldownPacket;
 import com.rave.projectbabylonmaterials.network.client.ClientboundShadowFormAfterimagePacket;
@@ -52,6 +53,13 @@ public final class PBNetwork {
                 ClientboundShadowFormAfterimagePacket::encode,
                 ClientboundShadowFormAfterimagePacket::decode,
                 ClientboundShadowFormAfterimagePacket::handle
+        );
+        CHANNEL.registerMessage(
+                packetId++,
+                ClientboundArmorPhotonEffectPacket.class,
+                ClientboundArmorPhotonEffectPacket::encode,
+                ClientboundArmorPhotonEffectPacket::decode,
+                ClientboundArmorPhotonEffectPacket::handle
         );
     }
 }

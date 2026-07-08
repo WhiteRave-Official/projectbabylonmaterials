@@ -42,6 +42,8 @@ public final class PBMPhotonEffectHelper {
     private static final Map<Integer, OrbitState> ACTIVE_BASTION_FROST_AURAS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_BASTION_RULE_AURAS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_BASTION_HEAVENS_GIFT_AURAS = new ConcurrentHashMap<>();
+    private static final Map<Integer, OrbitState> ACTIVE_ARMOR_ICE_AURAS = new ConcurrentHashMap<>();
+    private static final Map<Integer, OrbitState> ACTIVE_ARMOR_NETHERITE_FIRE_RINGS = new ConcurrentHashMap<>();
     private static final Quaternionf IDENTITY_ROTATION = new Quaternionf();
     private static final Vector3f UNIT_SCALE = new Vector3f(1.0F, 1.0F, 1.0F);
     private static final ResourceLocation PORTAL_TEXTURE = texture("dragon_descend_spell.png");
@@ -97,13 +99,14 @@ public final class PBMPhotonEffectHelper {
     private static final double PHOTON_MEDIUM_DISTANCE_SQR = 32.0D * 32.0D;
     private static final double PHOTON_FAR_DISTANCE_SQR = 48.0D * 48.0D;
     private static final double PHOTON_MAX_DISTANCE_SQR = 64.0D * 64.0D;
-    private static final double PHOTON_OCCLUDED_MAX_DISTANCE_SQR = 26.0D * 26.0D;
+    private static final double PHOTON_OCCLUDED_MAX_DISTANCE_SQR = 5.0D * 5.0D;
+    private static boolean distanceLitePhotonEffect;
 
     private PBMPhotonEffectHelper() {
     }
 
     private static boolean useLitePhotonEffects() {
-        return PBMClientConfig.useLitePhotonEffects();
+        return PBMClientConfig.useLitePhotonEffects() || distanceLitePhotonEffect;
     }
 
 
@@ -129,6 +132,7 @@ public final class PBMPhotonEffectHelper {
     }
 
     private static boolean shouldRenderPersistentEffect(Entity entity, int tick) {
+        distanceLitePhotonEffect = false;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.isPaused() || minecraft.player == null || minecraft.level == null || entity == null || !entity.isAlive()) {
             return false;
@@ -148,11 +152,13 @@ public final class PBMPhotonEffectHelper {
             return false;
         }
 
+        distanceLitePhotonEffect = visible && distanceSqr > PHOTON_MEDIUM_DISTANCE_SQR;
         int interval = resolveDistanceInterval(distanceSqr, visible);
-        return interval <= 1 || (tick % interval) == 0;
+        boolean render = interval <= 1 || (tick % interval) == 0;
+        return render;
     }
-
     private static boolean shouldRenderTransientEffect(Entity entity, int tick) {
+        distanceLitePhotonEffect = false;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.isPaused() || minecraft.player == null || minecraft.level == null || entity == null || !entity.isAlive()) {
             return false;
@@ -172,11 +178,13 @@ public final class PBMPhotonEffectHelper {
             return false;
         }
 
+        distanceLitePhotonEffect = visible && distanceSqr > PHOTON_MEDIUM_DISTANCE_SQR;
         int interval = resolveDistanceInterval(distanceSqr, visible);
-        return interval <= 1 || (tick % interval) == 0;
+        boolean render = interval <= 1 || (tick % interval) == 0;
+        return render;
     }
-
     private static boolean shouldRenderPointEffect(ClientLevel level, Vec3 position) {
+        distanceLitePhotonEffect = false;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.isPaused() || minecraft.player == null || minecraft.level != level) {
             return false;
@@ -188,13 +196,14 @@ public final class PBMPhotonEffectHelper {
             return false;
         }
 
-        if (distanceSqr <= PHOTON_OCCLUDED_MAX_DISTANCE_SQR) {
-            return true;
+        boolean visible = hasLineOfSight(level, eyePosition, position);
+        if (!visible && distanceSqr > PHOTON_OCCLUDED_MAX_DISTANCE_SQR) {
+            return false;
         }
 
-        return hasLineOfSight(level, eyePosition, position);
+        distanceLitePhotonEffect = visible && distanceSqr > PHOTON_MEDIUM_DISTANCE_SQR;
+        return true;
     }
-
     private static int resolveDistanceInterval(double distanceSqr, boolean visible) {
         int interval;
         if (distanceSqr <= PHOTON_NEAR_DISTANCE_SQR) {
@@ -273,6 +282,10 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
+            return;
+        }
+
         ACTIVE_FIRE_STORM_CASTS.remove(entity.getId());
         spawnFireStormCastBurst(entity);
     }
@@ -348,8 +361,83 @@ public final class PBMPhotonEffectHelper {
 
         ACTIVE_BASTION_HEAVENS_GIFT_AURAS.remove(entity.getId());
     }
+    public static void startArmorIceAura(Entity entity, float radiusBlocks) {
+        if (entity == null || !entity.isAlive() || entity.level() == null || !entity.level().isClientSide || ShadowFormClientState.isConcealed(entity)) {
+            return;
+        }
+
+        ACTIVE_ARMOR_ICE_AURAS.put(entity.getId(), new OrbitState(entity.getId(), radiusBlocks));
+    }
+
+    public static void stopArmorIceAura(Entity entity) {
+        if (entity == null) {
+            return;
+        }
+
+        ACTIVE_ARMOR_ICE_AURAS.remove(entity.getId());
+    }
+
+    public static void startArmorNetheriteFireRing(Entity entity, float radiusBlocks) {
+        if (entity == null || !entity.isAlive() || entity.level() == null || !entity.level().isClientSide || ShadowFormClientState.isConcealed(entity)) {
+            return;
+        }
+
+        ACTIVE_ARMOR_NETHERITE_FIRE_RINGS.put(entity.getId(), new OrbitState(entity.getId(), radiusBlocks));
+    }
+
+    public static void stopArmorNetheriteFireRing(Entity entity) {
+        if (entity == null) {
+            return;
+        }
+
+        ACTIVE_ARMOR_NETHERITE_FIRE_RINGS.remove(entity.getId());
+    }
+
+    public static void spawnArmorDragonsteelRebirth(Entity entity) {
+        if (!(entity.level() instanceof ClientLevel level) || ShadowFormClientState.isConcealed(entity)) {
+            return;
+        }
+
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
+            return;
+        }
+
+        StaticLevelEffect effect = new StaticLevelEffect(level);
+        double centerX = entity.getX();
+        double baseY = entity.getY() + 0.18D;
+        double centerZ = entity.getZ();
+        int count = photonCount(44);
+        float baseAngle = entity.tickCount * 0.28F;
+
+        for (int i = 0; i < count; i++) {
+            float progress = i / (float) count;
+            float angle = baseAngle + (progress * Mth.TWO_PI * 3.2F);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            double height = 0.18D + (progress * Math.max(1.7D, entity.getBbHeight() + 0.55D));
+            double radius = 0.25D + (progress * 1.35D);
+            double x = centerX + cos * radius;
+            double y = baseY + height;
+            double z = centerZ + sin * radius;
+            double outSpeed = 0.12D + progress * 0.18D;
+            double vx = cos * outSpeed - sin * 0.055D;
+            double vz = sin * outSpeed + cos * 0.055D;
+            double vy = 0.06D + progress * 0.045D;
+            int color = (i & 1) == 0 ? 0xFFD8C2FF : 0xFF9D5DFF;
+            ResourceLocation texture = (i % 3 == 0) ? PHANTOM_TEXTURE : PORTAL_TEXTURE;
+            createTrailEmitterNoBloom(texture, 0.28F + progress * 0.14F, 18, color, vx, vy, vz, (i & 1) == 0 ? 28.0F : -28.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) x, (float) y, (float) z), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        createTrailEmitterNoBloom(PORTAL_TEXTURE, 0.58F, 20, 0xFFEDE4FF, 0.0D, 0.055D, 0.0D, 32.0F)
+                .emmit(effect, new Vector3f((float) centerX, (float) (baseY + entity.getBbHeight() * 0.55D), (float) centerZ), IDENTITY_ROTATION, new Vector3f(1.8F, 1.0F, 1.8F));
+    }
     public static void spawnShadowFormTransition(Entity entity, boolean entering) {
         if (!(entity.level() instanceof ClientLevel level)) {
+            return;
+        }
+
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
             return;
         }
 
@@ -399,6 +487,10 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
+            return;
+        }
+
         StaticLevelEffect effect = new StaticLevelEffect(level);
         double centerX = entity.getX();
         double centerY = entity.getY() + Math.max(0.08D, entity.getBbHeight() * 0.45D);
@@ -421,6 +513,10 @@ public final class PBMPhotonEffectHelper {
 
     public static void spawnSpectralFlightTrail(Entity entity, Vec3 movement) {
         if (!(entity.level() instanceof ClientLevel level) || movement.lengthSqr() < 1.0E-6D) {
+            return;
+        }
+
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
             return;
         }
 
@@ -580,11 +676,19 @@ public final class PBMPhotonEffectHelper {
             return;
         }
 
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
+            return;
+        }
+
         spawnBlessingStartRing(entity);
     }
 
     public static void burstBlessingCast(Entity entity) {
         if (entity == null || entity.level() == null || !entity.level().isClientSide) {
+            return;
+        }
+
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
             return;
         }
 
@@ -596,6 +700,10 @@ public final class PBMPhotonEffectHelper {
 
     public static void spawnGlacierContactWave(Entity entity) {
         if (!(entity.level() instanceof ClientLevel level)) {
+            return;
+        }
+
+        if (!shouldRenderTransientEffect(entity, entity.tickCount)) {
             return;
         }
 
@@ -623,6 +731,10 @@ public final class PBMPhotonEffectHelper {
     }
 
     public static void spawnDragonDescendFlight(Entity projectile, Vec3 movement) {
+        spawnDragonDescendFlight(projectile, movement, TRAIL_VISUAL_LIFETIME);
+    }
+
+    public static void spawnDragonDescendFlight(Entity projectile, Vec3 movement, int trailVisualLifetimeTicks) {
         if (!(projectile.level() instanceof ClientLevel level) || movement.lengthSqr() < 1.0E-6D) {
             return;
         }
@@ -646,7 +758,32 @@ public final class PBMPhotonEffectHelper {
         }
 
         Vec3 trailCenter = projectile.position().subtract(normalized.scale(0.9D)).add(0.0D, 0.05D, 0.0D);
-        spawnTrailSegment(effect, trailCenter, right, normalized);
+        spawnTrailSegment(effect, trailCenter, right, normalized, trailVisualLifetimeTicks, projectile.tickCount);
+    }
+
+    public static void spawnDragonDescendLingeringTrail(ClientLevel level, Vec3 center, Vec3 forward, int pulseLifetimeTicks) {
+        if (forward.lengthSqr() < 1.0E-6D || !shouldRenderPointEffect(level, center)) {
+            return;
+        }
+
+        StaticLevelEffect effect = new StaticLevelEffect(level);
+        Vec3 normalized = forward.normalize();
+        Vec3 right = horizontalRight(normalized);
+        int lifetime = Math.max(6, pulseLifetimeTicks);
+
+        if (!useLitePhotonEffects()) {
+            spawnRiftLingeringPulse(effect, center, right, normalized, lifetime, (int) level.getGameTime());
+            return;
+        }
+
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.74F, lifetime, 0xD8D8C0FF, 0.0D, 0.002D, 0.0D, 5.0F)
+                .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(2.25F, 1.0F, 1.35F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.42F, lifetime, 0xE8F3EAFF, right.x * 0.025D, 0.012D, right.z * 0.025D, 18.0F)
+                .emmit(effect, toVector(center.add(right.scale(0.85D))), IDENTITY_ROTATION, UNIT_SCALE);
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.42F, lifetime, 0xC8E8D8FF, -right.x * 0.025D, 0.012D, -right.z * 0.025D, -18.0F)
+                .emmit(effect, toVector(center.add(right.scale(-0.85D))), IDENTITY_ROTATION, UNIT_SCALE);
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.28F, lifetime, 0xFFFFFFFF, normalized.x * -0.02D, 0.018D, normalized.z * -0.02D, 28.0F)
+                .emmit(effect, toVector(center.add(normalized.scale(-0.35D)).add(0.0D, 0.04D, 0.0D)), IDENTITY_ROTATION, UNIT_SCALE);
     }
 
     public static void spawnEnderProjectileFlight(Entity projectile, Vec3 movement) {
@@ -1022,6 +1159,8 @@ public final class PBMPhotonEffectHelper {
             ACTIVE_BASTION_FROST_AURAS.clear();
             ACTIVE_BASTION_RULE_AURAS.clear();
             ACTIVE_BASTION_HEAVENS_GIFT_AURAS.clear();
+            ACTIVE_ARMOR_ICE_AURAS.clear();
+            ACTIVE_ARMOR_NETHERITE_FIRE_RINGS.clear();
             return;
         }
 
@@ -1117,6 +1256,91 @@ public final class PBMPhotonEffectHelper {
             state.tick++;
         }
 
+        for (OrbitState state : ACTIVE_ARMOR_ICE_AURAS.values()) {
+            Entity entity = level.getEntity(state.entityId);
+            if (entity == null || !entity.isAlive()) {
+                ACTIVE_ARMOR_ICE_AURAS.remove(state.entityId);
+                continue;
+            }
+
+            if (!ShadowFormClientState.isConcealed(entity) && shouldRenderPersistentEffect(entity, state.tick)) {
+                spawnArmorIceAura(effect, entity, state.tick, state.radiusBlocks);
+            }
+            state.tick++;
+        }
+
+        for (OrbitState state : ACTIVE_ARMOR_NETHERITE_FIRE_RINGS.values()) {
+            Entity entity = level.getEntity(state.entityId);
+            if (entity == null || !entity.isAlive()) {
+                ACTIVE_ARMOR_NETHERITE_FIRE_RINGS.remove(state.entityId);
+                continue;
+            }
+
+            if (!ShadowFormClientState.isConcealed(entity) && shouldRenderPersistentEffect(entity, state.tick)) {
+                spawnArmorNetheriteFireRing(effect, entity, state.tick, state.radiusBlocks);
+            }
+            state.tick++;
+        }
+    }
+    private static void spawnArmorIceAura(StaticLevelEffect effect, Entity entity, int tick, float radiusBlocks) {
+        float baseAngle = tick * 0.075F;
+        double groundY = entity.getY() + 0.09D;
+        double radius = Math.max(1.1D, radiusBlocks);
+        int outerCount = photonCount(9);
+        int innerCount = photonCount(5);
+
+        for (int i = 0; i < outerCount; i++) {
+            float angle = baseAngle + ((Mth.TWO_PI / outerCount) * i);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            double x = entity.getX() + cos * radius;
+            double z = entity.getZ() + sin * radius;
+            createTrailEmitterNoBloom(SNOWFLAKE_TEXTURE, 0.22F, 18, 0xFFEAF9FF, -sin * 0.012D, 0.008D, cos * 0.012D, (i & 1) == 0 ? 10.0F : -10.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) x, (float) groundY, (float) z), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        for (int i = 0; i < innerCount; i++) {
+            float angle = -baseAngle * 0.65F + ((Mth.TWO_PI / innerCount) * i);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            double x = entity.getX() + cos * (radius * 0.62D);
+            double z = entity.getZ() + sin * (radius * 0.62D);
+            createTrailEmitterNoBloom(SNOW_TEXTURE, 0.3F, 16, 0xFFCDEEFF, -cos * 0.006D, 0.016D, -sin * 0.006D, (i & 1) == 0 ? 8.0F : -8.0F, -angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) x, (float) (groundY + 0.18D), (float) z), IDENTITY_ROTATION, new Vector3f(1.15F, 1.0F, 1.15F));
+        }
+    }
+
+    private static void spawnArmorNetheriteFireRing(StaticLevelEffect effect, Entity entity, int tick, float radiusBlocks) {
+        float baseAngle = tick * 0.32F;
+        double baseY = entity.getY() + 0.08D;
+        double radius = Math.max(1.2D, radiusBlocks);
+        int count = photonCount(10);
+
+        for (int i = 0; i < count; i++) {
+            float progress = i / (float) count;
+            float angle = baseAngle + ((Mth.TWO_PI / count) * i);
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            double height = (i % 3) * 0.18D;
+            double swirlRadius = radius - (progress * 0.22D);
+            double x = entity.getX() + cos * swirlRadius;
+            double z = entity.getZ() + sin * swirlRadius;
+            double tangentX = -sin * 0.035D;
+            double tangentZ = cos * 0.035D;
+            double rise = 0.045D + (i % 4) * 0.012D;
+            ResourceLocation flame = (i & 1) == 0 ? FIRE_TEXTURE_1 : FIRE_TEXTURE_2;
+            int color = (i & 1) == 0 ? 0xFFFFC85A : 0xFFFF5A1E;
+            createTrailEmitterNoBloom(flame, 0.28F, 13, color, tangentX, rise, tangentZ, (i & 1) == 0 ? 24.0F : -24.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, new Vector3f((float) x, (float) (baseY + height), (float) z), IDENTITY_ROTATION, UNIT_SCALE);
+
+            if ((i % 3) == 0) {
+                createTrailEmitterNoBloom(SMOKE_TEXTURE_1, 0.24F, 18, 0xFF242424, tangentX * 0.55D, rise * 0.55D, tangentZ * 0.55D, 10.0F)
+                        .emmit(effect, new Vector3f((float) x, (float) (baseY + height + 0.06D), (float) z), IDENTITY_ROTATION, UNIT_SCALE);
+            }
+        }
+
+        createTrailEmitterNoBloom(FIRE_TEXTURE_1, 0.38F, 12, 0xFFFFE08A, 0.0D, 0.04D, 0.0D, 28.0F)
+                .emmit(effect, new Vector3f((float) entity.getX(), (float) (baseY + 0.22D), (float) entity.getZ()), IDENTITY_ROTATION, new Vector3f(1.35F, 1.0F, 1.35F));
     }
     private static void spawnBastionFrostAura(StaticLevelEffect effect, Entity entity, int tick, float radiusBlocks) {
         float baseAngle = tick * 0.14F;
@@ -1546,27 +1770,99 @@ public final class PBMPhotonEffectHelper {
         }
     }
 
-    private static void spawnTrailSegment(StaticLevelEffect effect, Vec3 center, Vec3 right, Vec3 forward) {
+    private static void spawnTrailSegment(StaticLevelEffect effect, Vec3 center, Vec3 right, Vec3 forward, int trailVisualLifetimeTicks, int tick) {
+        if (useLitePhotonEffects()) {
+            spawnLiteTrailSegment(effect, center, right, forward, trailVisualLifetimeTicks);
+            return;
+        }
+
+        spawnRiftTrailSegment(effect, center, right, forward, tick);
+    }
+
+    private static void spawnRiftTrailSegment(StaticLevelEffect effect, Vec3 center, Vec3 right, Vec3 forward, int tick) {
+        Vec3 back = forward.scale(-0.35D);
+        float swirl = tick * 0.42F;
+
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.58F, 22, 0xC82D154A, 0.0D, 0.004D, 0.0D, 8.0F, swirl * Mth.RAD_TO_DEG)
+                .emmit(effect, toVector(center.add(back)), IDENTITY_ROTATION, new Vector3f(2.55F, 0.8F, 0.62F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.34F, 18, 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, -18.0F, -swirl * Mth.RAD_TO_DEG)
+                .emmit(effect, toVector(center.add(0.0D, 0.08D, 0.0D)), IDENTITY_ROTATION, new Vector3f(1.45F, 1.0F, 0.42F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.22F, 16, 0xFFFFFFFF, 0.0D, 0.018D, 0.0D, 30.0F, swirl * 1.3F * Mth.RAD_TO_DEG)
+                .emmit(effect, toVector(center.add(forward.scale(0.18D)).add(0.0D, 0.14D, 0.0D)), IDENTITY_ROTATION, UNIT_SCALE);
+
+        for (int i = 0; i < 6; i++) {
+            double angle = swirl + (Mth.TWO_PI * i / 6.0D);
+            double wave = Math.cos(angle);
+            double lift = Math.sin(angle) * 0.28D;
+            Vec3 offset = right.scale(wave * 0.95D).add(forward.scale(-0.2D + (i % 3) * 0.18D)).add(0.0D, 0.18D + lift, 0.0D);
+            Vec3 tangent = right.scale(-Math.sin(angle) * 0.045D).add(forward.scale(-0.018D));
+            int color = (i & 1) == 0 ? 0xFFE8D8FF : 0xFF9F5CFF;
+            createLingeringTrailEmitter(PORTAL_TEXTURE, 0.24F, 17, color, tangent.x, 0.012D + Math.max(0.0D, lift) * 0.01D, tangent.z, (i & 1) == 0 ? 34.0F : -34.0F, (float) Math.toDegrees(angle))
+                    .emmit(effect, toVector(center.add(offset)), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        for (int i = 0; i < 4; i++) {
+            double side = i < 2 ? 1.0D : -1.0D;
+            double depth = -0.55D + (i % 2) * 0.45D;
+            Vec3 edge = center.add(right.scale(side * (1.15D + (i % 2) * 0.25D))).add(forward.scale(depth)).add(0.0D, 0.06D, 0.0D);
+            createLingeringTrailEmitter(PORTAL_TEXTURE, 0.18F, 14, 0xCCF3EAFF, right.x * side * 0.075D, 0.02D, right.z * side * 0.075D, (float) (side * 42.0D))
+                    .emmit(effect, toVector(edge), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+    }
+
+    private static void spawnRiftLingeringPulse(StaticLevelEffect effect, Vec3 center, Vec3 right, Vec3 forward, int lifetime, int tick) {
+        float swirl = tick * 0.28F;
+
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.54F, lifetime, 0xB82D154A, 0.0D, 0.001D, 0.0D, 5.0F, swirl * Mth.RAD_TO_DEG)
+                .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(2.35F, 0.75F, 0.72F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.28F, lifetime, 0xD8E8D8FF, 0.0D, 0.006D, 0.0D, -12.0F, -swirl * Mth.RAD_TO_DEG)
+                .emmit(effect, toVector(center.add(0.0D, 0.09D, 0.0D)), IDENTITY_ROTATION, new Vector3f(1.25F, 1.0F, 0.45F));
+
+        for (int i = 0; i < 4; i++) {
+            double angle = swirl + (Mth.HALF_PI * i);
+            double side = Math.cos(angle);
+            Vec3 pos = center.add(right.scale(side * 0.95D)).add(forward.scale(Math.sin(angle) * 0.24D)).add(0.0D, 0.16D + Math.sin(angle * 1.7D) * 0.08D, 0.0D);
+            Vec3 velocity = right.scale(-Math.sin(angle) * 0.035D).add(forward.scale(-0.015D));
+            createLingeringTrailEmitter(PORTAL_TEXTURE, 0.2F, lifetime, 0xD8F3EAFF, velocity.x, 0.012D, velocity.z, (i & 1) == 0 ? 24.0F : -24.0F, (float) Math.toDegrees(angle))
+                    .emmit(effect, toVector(pos), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+    }
+
+    private static void spawnLiteTrailSegment(StaticLevelEffect effect, Vec3 center, Vec3 right, Vec3 forward, int trailVisualLifetimeTicks) {
         Vec3 leftEdge = center.add(right.scale(TRAIL_HALF_WIDTH));
         Vec3 rightEdge = center.add(right.scale(-TRAIL_HALF_WIDTH));
         Vec3 forwardOffset = forward.scale(0.3D);
         Vec3 centerLeft = center.add(right.scale(0.5D));
         Vec3 centerRight = center.add(right.scale(-0.5D));
+        int lifetime = Math.max(1, trailVisualLifetimeTicks);
+        Vec3 rearOffset = forward.scale(-0.22D);
+        Vec3 frontOffset = forward.scale(0.22D);
 
-        createTrailEmitter(PORTAL_TEXTURE, 0.52F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFD8C0FF, 0.0D, 0.01D, 0.0D, 10.0F)
-                .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(1.9F, 1.0F, 1.9F));
-        createTrailEmitter(PORTAL_TEXTURE, 0.46F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, -8.0F)
-                .emmit(effect, toVector(centerLeft), IDENTITY_ROTATION, new Vector3f(1.45F, 1.0F, 1.45F));
-        createTrailEmitter(PORTAL_TEXTURE, 0.46F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFE8D8FF, 0.0D, 0.012D, 0.0D, 8.0F)
-                .emmit(effect, toVector(centerRight), IDENTITY_ROTATION, new Vector3f(1.45F, 1.0F, 1.45F));
-        createTrailEmitter(PORTAL_TEXTURE, 0.42F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFFFFFFF, right.x * 0.05D, 0.03D, right.z * 0.05D, 18.0F)
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.62F, lifetime, 0xFFD8C0FF, 0.0D, 0.006D, 0.0D, 10.0F)
+                .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(2.15F, 1.0F, 2.15F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.48F, lifetime, 0xFFE8D8FF, 0.0D, 0.008D, 0.0D, -12.0F)
+                .emmit(effect, toVector(center.add(rearOffset)), IDENTITY_ROTATION, new Vector3f(1.85F, 1.0F, 1.85F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.42F, lifetime, 0xFFF3EAFF, 0.0D, 0.01D, 0.0D, 14.0F)
+                .emmit(effect, toVector(center.add(frontOffset)), IDENTITY_ROTATION, new Vector3f(1.55F, 1.0F, 1.55F));
+
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.52F, lifetime, 0xFFE8D8FF, right.x * 0.018D, 0.012D, right.z * 0.018D, -10.0F)
+                .emmit(effect, toVector(centerLeft), IDENTITY_ROTATION, new Vector3f(1.6F, 1.0F, 1.6F));
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.52F, lifetime, 0xFFE8D8FF, -right.x * 0.018D, 0.012D, -right.z * 0.018D, 10.0F)
+                .emmit(effect, toVector(centerRight), IDENTITY_ROTATION, new Vector3f(1.6F, 1.0F, 1.6F));
+
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.46F, lifetime, 0xFFFFFFFF, right.x * 0.075D, 0.032D, right.z * 0.075D, 22.0F)
                 .emmit(effect, toVector(leftEdge.add(forwardOffset)), IDENTITY_ROTATION, UNIT_SCALE);
-        createTrailEmitter(PORTAL_TEXTURE, 0.42F, photonLifetime(TRAIL_VISUAL_LIFETIME), 0xFFE8D8FF, -right.x * 0.05D, 0.03D, -right.z * 0.05D, -18.0F)
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.46F, lifetime, 0xFFE8D8FF, -right.x * 0.075D, 0.032D, -right.z * 0.075D, -22.0F)
                 .emmit(effect, toVector(rightEdge.add(forwardOffset)), IDENTITY_ROTATION, UNIT_SCALE);
-        createTrailEmitter(PORTAL_TEXTURE, 0.3F, photonLifetime(TRAIL_VISUAL_LIFETIME) - 8, 0xFFF3EAFF, right.x * 0.03D, 0.015D, right.z * 0.03D, 24.0F)
+
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.34F, lifetime, 0xFFF3EAFF, right.x * 0.045D, 0.018D, right.z * 0.045D, 28.0F)
                 .emmit(effect, toVector(center.add(right.scale(0.75D))), IDENTITY_ROTATION, UNIT_SCALE);
-        createTrailEmitter(PORTAL_TEXTURE, 0.3F, photonLifetime(TRAIL_VISUAL_LIFETIME) - 8, 0xFFF3EAFF, -right.x * 0.03D, 0.015D, -right.z * 0.03D, -24.0F)
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.34F, lifetime, 0xFFF3EAFF, -right.x * 0.045D, 0.018D, -right.z * 0.045D, -28.0F)
                 .emmit(effect, toVector(center.add(right.scale(-0.75D))), IDENTITY_ROTATION, UNIT_SCALE);
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.26F, lifetime, 0xFFFFFFFF, right.x * 0.11D, 0.026D, right.z * 0.11D, 36.0F)
+                .emmit(effect, toVector(center.add(right.scale(1.15D)).add(rearOffset)), IDENTITY_ROTATION, UNIT_SCALE);
+        createLingeringTrailEmitter(PORTAL_TEXTURE, 0.26F, lifetime, 0xFFE8D8FF, -right.x * 0.11D, 0.026D, -right.z * 0.11D, -36.0F)
+                .emmit(effect, toVector(center.add(right.scale(-1.15D)).add(rearOffset)), IDENTITY_ROTATION, UNIT_SCALE);
     }
 
     private static ParticleEmitter createBreathEmitter() {
@@ -1635,9 +1931,26 @@ public final class PBMPhotonEffectHelper {
         return createTrailEmitter(texture, size, lifetime, color, vx, vy, vz, rollPerTickDegrees, startRollDegrees, true);
     }
 
+    private static ParticleEmitter createLingeringTrailEmitter(ResourceLocation texture, float size, int lifetime, int color,
+                                                               double vx, double vy, double vz, float rollPerTickDegrees) {
+        return createTrailEmitter(texture, size, lifetime, color, vx, vy, vz, rollPerTickDegrees, 0.0F, true, false);
+    }
+
+    private static ParticleEmitter createLingeringTrailEmitter(ResourceLocation texture, float size, int lifetime, int color,
+                                                               double vx, double vy, double vz, float rollPerTickDegrees,
+                                                               float startRollDegrees) {
+        return createTrailEmitter(texture, size, lifetime, color, vx, vy, vz, rollPerTickDegrees, startRollDegrees, true, false);
+    }
+
     private static ParticleEmitter createTrailEmitter(ResourceLocation texture, float size, int lifetime, int color,
                                                       double vx, double vy, double vz, float rollPerTickDegrees,
                                                       float startRollDegrees, boolean bloom) {
+        return createTrailEmitter(texture, size, lifetime, color, vx, vy, vz, rollPerTickDegrees, startRollDegrees, bloom, true);
+    }
+
+    private static ParticleEmitter createTrailEmitter(ResourceLocation texture, float size, int lifetime, int color,
+                                                      double vx, double vy, double vz, float rollPerTickDegrees,
+                                                      float startRollDegrees, boolean bloom, boolean fadeOverLifetime) {
         ParticleEmitter emitter = new ParticleEmitter();
         ParticleConfig config = emitter.config;
 
@@ -1670,10 +1983,12 @@ public final class PBMPhotonEffectHelper {
         config.velocityOverLifetime.setLinear(new NumberFunction3(vx * 20.0D, vy * 20.0D, vz * 20.0D));
         config.velocityOverLifetime.setSpeedModifier(NumberFunction.constant(1.0F));
 
-        config.colorOverLifetime.setEnable(true);
-        Gradient fadeGradient = new Gradient();
-        fadeGradient.getGradientColor().deserializeNBT(new GradientColor(color, color & 0x00FFFFFF).serializeNBT());
-        config.colorOverLifetime.setColor(fadeGradient);
+        if (fadeOverLifetime) {
+            config.colorOverLifetime.setEnable(true);
+            Gradient fadeGradient = new Gradient();
+            fadeGradient.getGradientColor().deserializeNBT(new GradientColor(color, color & 0x00FFFFFF).serializeNBT());
+            config.colorOverLifetime.setColor(fadeGradient);
+        }
 
         config.rotationOverLifetime.setEnable(true);
         config.rotationOverLifetime.setRoll(NumberFunction.constant(rollPerTickDegrees));
@@ -1742,3 +2057,7 @@ public final class PBMPhotonEffectHelper {
         }
     }
 }
+
+
+
+

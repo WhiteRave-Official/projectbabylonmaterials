@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Mod.EventBusSubscriber(modid = ProjectBabylonMaterials.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public final class PBMPhotonEffectHelper {
     private static final Map<Integer, OrbitState> ACTIVE_DRAGON_DESCEND_CASTS = new ConcurrentHashMap<>();
+    private static final Map<Integer, OrbitState> ACTIVE_ARCLIGHT_AWAKENINGS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_GLACIER_CASTS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_FIRE_STORM_CASTS = new ConcurrentHashMap<>();
     private static final Map<Integer, OrbitState> ACTIVE_MAGICAL_VEILS = new ConcurrentHashMap<>();
@@ -47,6 +48,9 @@ public final class PBMPhotonEffectHelper {
     private static final Quaternionf IDENTITY_ROTATION = new Quaternionf();
     private static final Vector3f UNIT_SCALE = new Vector3f(1.0F, 1.0F, 1.0F);
     private static final ResourceLocation PORTAL_TEXTURE = texture("dragon_descend_spell.png");
+    private static final ResourceLocation LIGHT_SMALL_TEXTURE = texture("light_particle_small.png");
+    private static final ResourceLocation LIGHT_MEDIUM_TEXTURE = texture("light_particle_medium.png");
+    private static final ResourceLocation LIGHT_BIG_TEXTURE = texture("light_particle_big.png");
     private static final ResourceLocation PHANTOM_TEXTURE = texture("phantom_particle.png");
     private static final ResourceLocation HOLY_TEXTURE = texture("holy_particle.png");
     private static final ResourceLocation HEAL_TEXTURE = texture("heal_particle.png");
@@ -228,6 +232,31 @@ public final class PBMPhotonEffectHelper {
         )).getType() == net.minecraft.world.phys.HitResult.Type.MISS;
     }
 
+    public static void startArclightAwakening(Entity entity) {
+        if (entity == null || !entity.isAlive() || entity.level() == null || !entity.level().isClientSide
+                || ShadowFormClientState.isConcealed(entity)) {
+            return;
+        }
+
+        ACTIVE_ARCLIGHT_AWAKENINGS.put(entity.getId(), new OrbitState(entity.getId()));
+    }
+
+    public static void burstArclightAwakening(Entity entity) {
+        if (entity == null || entity.level() == null || !entity.level().isClientSide) {
+            return;
+        }
+
+        ACTIVE_ARCLIGHT_AWAKENINGS.remove(entity.getId());
+        if (shouldRenderTransientEffect(entity, entity.tickCount)) {
+            spawnArclightAwakeningBurst(entity);
+        }
+    }
+
+    public static void stopArclightAwakening(Entity entity) {
+        if (entity != null) {
+            ACTIVE_ARCLIGHT_AWAKENINGS.remove(entity.getId());
+        }
+    }
     public static void startDragonDescendCast(Entity entity) {
         if (entity == null || !entity.isAlive() || entity.level() == null || !entity.level().isClientSide || ShadowFormClientState.isConcealed(entity)) {
             return;
@@ -1153,6 +1182,7 @@ public final class PBMPhotonEffectHelper {
         ClientLevel level = minecraft.level;
         if (level == null) {
             ACTIVE_DRAGON_DESCEND_CASTS.clear();
+            ACTIVE_ARCLIGHT_AWAKENINGS.clear();
             ACTIVE_GLACIER_CASTS.clear();
             ACTIVE_FIRE_STORM_CASTS.clear();
             ACTIVE_MAGICAL_VEILS.clear();
@@ -1165,6 +1195,18 @@ public final class PBMPhotonEffectHelper {
         }
 
         StaticLevelEffect effect = new StaticLevelEffect(level);
+        for (OrbitState state : ACTIVE_ARCLIGHT_AWAKENINGS.values()) {
+            Entity entity = level.getEntity(state.entityId);
+            if (entity == null || !entity.isAlive()) {
+                ACTIVE_ARCLIGHT_AWAKENINGS.remove(state.entityId);
+                continue;
+            }
+
+            if (!ShadowFormClientState.isConcealed(entity) && shouldRenderPersistentEffect(entity, state.tick)) {
+                spawnArclightAwakening(effect, entity, state.tick);
+            }
+            state.tick++;
+        }
         for (OrbitState state : ACTIVE_DRAGON_DESCEND_CASTS.values()) {
             Entity entity = level.getEntity(state.entityId);
             if (entity == null || !entity.isAlive()) {
@@ -1242,7 +1284,8 @@ public final class PBMPhotonEffectHelper {
             }
             state.tick++;
         }
-
+
+
         for (OrbitState state : ACTIVE_BASTION_HEAVENS_GIFT_AURAS.values()) {
             Entity entity = level.getEntity(state.entityId);
             if (entity == null || !entity.isAlive()) {
@@ -1424,6 +1467,83 @@ public final class PBMPhotonEffectHelper {
             createTrailEmitter(HOLY_TEXTURE, 0.34F, 12, 0xFFFFFFFF, -sin * 0.012D, 0.018D, cos * 0.012D, (i & 1) == 0 ? 12.0F : -12.0F, angle * Mth.RAD_TO_DEG)
                     .emmit(effect, new Vector3f((float) (entity.getX() + (cos * innerRadius)), (float) chestY, (float) (entity.getZ() + (sin * innerRadius))), IDENTITY_ROTATION, UNIT_SCALE);
         }
+    }
+    private static void spawnArclightAwakening(StaticLevelEffect effect, Entity entity, int tick) {
+        Vec3 target = arclightWeaponTarget(entity);
+        float ramp = Mth.clamp(tick / 220.0F, 0.0F, 1.0F);
+        float baseAngle = tick * (0.22F + ramp * 0.2F);
+        int vortexCount = photonCount(8);
+        double outerRadius = Mth.lerp(ramp, 5.4D, 3.2D);
+
+        for (int i = 0; i < vortexCount; i++) {
+            float lane = i / (float) vortexCount;
+            float angle = baseAngle + lane * Mth.TWO_PI + (float) Math.sin(tick * 0.055F + i) * 0.24F;
+            double height = 0.2D + (i + tick * 0.18D) % vortexCount / vortexCount * (entity.getBbHeight() + 2.8D);
+            double radius = outerRadius * (0.72D + 0.28D * Math.sin(lane * Math.PI));
+            Vec3 origin = new Vec3(entity.getX() + Math.cos(angle) * radius, entity.getY() + height, entity.getZ() + Math.sin(angle) * radius);
+            Vec3 inward = target.subtract(origin).normalize();
+            Vec3 tangent = new Vec3(-Math.sin(angle), 0.0D, Math.cos(angle));
+            Vec3 velocity = inward.scale(0.105D + ramp * 0.045D).add(tangent.scale(0.055D));
+            ResourceLocation texture = i % 3 == 0 ? LIGHT_BIG_TEXTURE : (i % 2 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE);
+            float size = i % 3 == 0 ? 0.42F : (i % 2 == 0 ? 0.29F : 0.2F);
+            createTrailEmitterNoBloom(texture, size, 20, 0xE900FFFF, velocity.x, velocity.y, velocity.z,
+                    (i & 1) == 0 ? 18.0F : -18.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, toVector(origin), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        int absorptionCount = photonCount(4);
+        for (int i = 0; i < absorptionCount; i++) {
+            float angle = -baseAngle * 1.4F + i * (Mth.TWO_PI / absorptionCount);
+            double radius = 1.4D + i * 0.32D;
+            Vec3 origin = new Vec3(target.x + Math.cos(angle) * radius,
+                    target.y + Math.sin(angle * 0.7F) * 1.15D,
+                    target.z + Math.sin(angle) * radius);
+            Vec3 velocity = target.subtract(origin).normalize().scale(0.12D + ramp * 0.06D);
+            ResourceLocation texture = (i & 1) == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE;
+            createTrailEmitterNoBloom(texture, (i & 1) == 0 ? 0.28F : 0.18F, 14, 0xFFFFFFFF,
+                    velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 26.0F : -26.0F)
+                    .emmit(effect, toVector(origin), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+    }
+
+    private static void spawnArclightAwakeningBurst(Entity entity) {
+        StaticLevelEffect effect = new StaticLevelEffect(entity.level());
+        Vec3 center = arclightWeaponTarget(entity);
+        int count = photonCount(56);
+
+        for (int i = 0; i < count; i++) {
+            double y = 1.0D - 2.0D * (i + 0.5D) / count;
+            double radial = Math.sqrt(Math.max(0.0D, 1.0D - y * y));
+            double angle = i * 2.399963229728653D;
+            Vec3 direction = new Vec3(Math.cos(angle) * radial, y, Math.sin(angle) * radial);
+            double speed = 0.18D + (i % 7) * 0.018D;
+            ResourceLocation texture = i % 5 == 0 ? LIGHT_BIG_TEXTURE : (i % 2 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE);
+            float size = i % 5 == 0 ? 0.58F : (i % 2 == 0 ? 0.34F : 0.22F);
+            createTrailEmitterNoBloom(texture, size, 22, 0xFFFFFFFF,
+                    direction.x * speed, direction.y * speed, direction.z * speed,
+                    (i & 1) == 0 ? 34.0F : -34.0F, (float) angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, toVector(center), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        int ringCount = photonCount(24);
+        for (int i = 0; i < ringCount; i++) {
+            float angle = i * Mth.TWO_PI / ringCount;
+            Vec3 direction = new Vec3(Math.cos(angle), 0.08D, Math.sin(angle)).normalize();
+            createTrailEmitterNoBloom(LIGHT_BIG_TEXTURE, 0.52F, 18, 0xE900FFFF,
+                    direction.x * 0.3D, direction.y * 0.3D, direction.z * 0.3D,
+                    (i & 1) == 0 ? 28.0F : -28.0F, angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(1.25F, 1.0F, 1.25F));
+        }
+    }
+
+    private static Vec3 arclightWeaponTarget(Entity entity) {
+        float yaw = entity.getYRot() * Mth.DEG_TO_RAD;
+        Vec3 right = new Vec3(-Math.cos(yaw), 0.0D, -Math.sin(yaw));
+        Vec3 forward = entity.getLookAngle().normalize();
+        return entity.position()
+                .add(0.0D, Math.max(1.0D, entity.getBbHeight() * 0.68D), 0.0D)
+                .add(right.scale(0.52D))
+                .add(forward.scale(0.34D));
     }
     private static void spawnOrbit(StaticLevelEffect effect, Entity entity, int tick) {
         float baseAngle = (tick * ROTATION_SPEED) % Mth.TWO_PI;

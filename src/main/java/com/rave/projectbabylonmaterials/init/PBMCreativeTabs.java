@@ -50,6 +50,14 @@ public final class PBMCreativeTabs {
                         output.accept(PBMItems.MAGICAL_ICE_DEEPSLATE_ORE_ITEM.get());
                         output.accept(PBMItems.STEEL_BLOCK_ITEM.get());
                         output.accept(PBMItems.MAGICAL_INFUSER_BLOCK_ITEM.get());
+                        output.accept(PBMItems.DESTRUCTION_DESTINY_STONE.get());
+                        output.accept(PBMItems.DESTRUCTION_DESTINY_SHARD.get());
+                        output.accept(PBMItems.SPEED_DESTINY_STONE.get());
+                        output.accept(PBMItems.SPEED_DESTINY_SHARD.get());
+                        output.accept(PBMItems.IDENTITY_DESTINY_STONE.get());
+                        output.accept(PBMItems.IDENTITY_DESTINY_SHARD.get());
+                        output.accept(PBMItems.GUARD_DESTINY_STONE.get());
+                        output.accept(PBMItems.GUARD_DESTINY_SHARD.get());
                         output.accept(PBMItems.MAGICAL_ICE_SHARD.get());
                         output.accept(PBMItems.MAGIC_DUST.get());
                         output.accept(PBMItems.GEM_DUST.get());

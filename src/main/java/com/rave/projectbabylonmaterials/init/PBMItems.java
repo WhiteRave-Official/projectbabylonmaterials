@@ -47,6 +47,14 @@ public final class PBMItems {
     public static final RegistryObject<Item> ETHEREAL_CLOTH = registerSimpleItem("ethereal_cloth");
     public static final RegistryObject<Item> DRAGONSTEEL_CLOTH = registerSimpleItem("dragonsteel_cloth");
 
+    public static final RegistryObject<Item> DESTRUCTION_DESTINY_STONE = registerSimpleItem("destruction_destiny_stone");
+    public static final RegistryObject<Item> DESTRUCTION_DESTINY_SHARD = registerSimpleItem("destruction_destiny_shard");
+    public static final RegistryObject<Item> SPEED_DESTINY_STONE = registerSimpleItem("speed_destiny_stone");
+    public static final RegistryObject<Item> SPEED_DESTINY_SHARD = registerSimpleItem("speed_destiny_shard");
+    public static final RegistryObject<Item> IDENTITY_DESTINY_STONE = registerSimpleItem("identity_destiny_stone");
+    public static final RegistryObject<Item> IDENTITY_DESTINY_SHARD = registerSimpleItem("identity_destiny_shard");
+    public static final RegistryObject<Item> GUARD_DESTINY_STONE = registerSimpleItem("guard_destiny_stone");
+    public static final RegistryObject<Item> GUARD_DESTINY_SHARD = registerSimpleItem("guard_destiny_shard");
     public static final RegistryObject<Item> MAGICAL_ICE_SHARD = registerSimpleItem("magical_ice_shard");
     public static final RegistryObject<Item> MAGIC_DUST = registerSimpleItem("magic_dust");
     public static final RegistryObject<Item> GEM_DUST = registerSimpleItem("gem_dust");

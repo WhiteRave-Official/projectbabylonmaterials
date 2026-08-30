@@ -1,0 +1,67 @@
+package com.rave.projectbabylonmaterials.client.photon;
+
+import com.lowdragmc.photon.client.fx.IEffect;
+import com.lowdragmc.lowdraglib.utils.GradientColor;
+import com.lowdragmc.photon.client.gameobject.emitter.data.number.color.Gradient;
+import com.lowdragmc.photon.client.gameobject.emitter.data.VelocityOverLifetimeSetting;
+import com.lowdragmc.photon.client.gameobject.emitter.data.material.TextureMaterial;
+import com.lowdragmc.photon.client.gameobject.emitter.data.number.NumberFunction;
+import com.lowdragmc.photon.client.gameobject.emitter.data.number.NumberFunction3;
+import com.lowdragmc.photon.client.gameobject.emitter.data.shape.Cone;
+import com.lowdragmc.photon.client.gameobject.emitter.data.shape.Dot;
+import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleConfig;
+import com.lowdragmc.photon.client.gameobject.emitter.particle.ParticleEmitter;
+import com.rave.projectbabylonmaterials.ProjectBabylonMaterials;
+import com.rave.projectbabylonmaterials.client.shadow.ShadowFormClientState;
+import com.rave.projectbabylonmaterials.config.PBMClientConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+final class PhotonEffectConstants {
+    static final float INNER_RADIUS = 1.35F;
+    static final float OUTER_RADIUS = 1.85F;
+    static final float INNER_HEIGHT = 1.05F;
+    static final float OUTER_HEIGHT = 1.55F;
+    static final float ROTATION_SPEED = 0.42F;
+    static final int ORBIT_PARTICLES_PER_TICK = 4;
+    static final int BURST_PARTICLE_COUNT = 32;
+    static final double BURST_SPEED = 0.36D;
+    static final int BREATH_PARTICLE_COUNT = 5;
+    static final double BREATH_DOWNWARD_BIAS = -0.24D;
+    static final int ENDER_PROJECTILE_PARTICLE_INTERVAL = 2;
+    static final int HOLY_PROJECTILE_PARTICLE_INTERVAL = 2;
+    static final int ICE_PROJECTILE_PARTICLE_INTERVAL = 2;
+    static final int FIRE_PROJECTILE_PARTICLE_INTERVAL = 2;
+    static final int GOLDEN_PROJECTILE_PARTICLE_INTERVAL = 2;
+    static final int DIAMOND_PROJECTILE_PARTICLE_INTERVAL = 2;
+    static final int GLACIER_WAVE_PARTICLE_COUNT = 28;
+    static final int GLACIER_VORTEX_PARTICLES_PER_TICK = 7;
+    static final float GLACIER_VORTEX_ROTATION_SPEED = 0.48F;
+    static final int BLESSING_VORTEX_PARTICLES_PER_TICK = 8;
+    static final float BLESSING_VORTEX_ROTATION_SPEED = 0.34F;
+    static final int BLESSING_BURST_PARTICLE_COUNT = 22;
+    static final int FIRE_STORM_CAST_PARTICLES_PER_TICK = 8;
+    static final float FIRE_STORM_CAST_ROTATION_SPEED = 0.46F;
+    static final int FIRE_STORM_BURST_PARTICLE_COUNT = 22;
+    static final int MAGICAL_VEIL_PARTICLES_PER_TICK = 6;
+    static final float MAGICAL_VEIL_ROTATION_SPEED = 0.14F;
+    static final int TRAIL_VISUAL_INTERVAL = 2;
+    static final int TRAIL_VISUAL_LIFETIME = 60;
+    static final double TRAIL_HALF_WIDTH = 1.5D;
+}

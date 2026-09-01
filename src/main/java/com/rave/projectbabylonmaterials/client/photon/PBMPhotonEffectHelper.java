@@ -71,6 +71,7 @@ public final class PBMPhotonEffectHelper {
     public static void spawnDiamondProjectileImpact(Entity projectile, Vec3 hitPos) { PhotonProjectileEffects.spawnDiamondProjectileImpact(projectile, hitPos); }
 
     public static void spawnArclightMiniPortal(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnPortal(projectile, direction); }
+    public static void spawnArclightRainTarget(Entity portal, Vec3 targetPosition) { ArclightMiniPhotonEffects.spawnRainTarget(portal, targetPosition); }
     public static void spawnArclightMiniLaunch(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnLaunch(projectile, direction); }
     public static void spawnArclightMiniFlight(Entity projectile, Vec3 movement) { ArclightMiniPhotonEffects.spawnFlight(projectile, movement); }
     public static void spawnArclightMiniImpact(Entity projectile, Vec3 hitPos, Vec3 direction) { ArclightMiniPhotonEffects.spawnImpact(projectile, hitPos, direction); }

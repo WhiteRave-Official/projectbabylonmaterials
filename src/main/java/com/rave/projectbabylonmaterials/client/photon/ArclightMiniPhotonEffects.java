@@ -53,7 +53,7 @@ final class ArclightMiniPhotonEffects {
             Vec3 position = center.add(radial.scale(0.95D * visualScale));
             Vec3 velocity = radial.scale(-0.055D).add(forward.scale(0.008D));
             ResourceLocation texture = (i & 1) == 0 ? LIGHT_SMALL_TEXTURE : LIGHT_MEDIUM_TEXTURE;
-            createTrailEmitterNoBloom(texture, 0.27F * visualScale, photonLifetime(14), 0xFFF4F0FF,
+            createTrailEmitterNoBloom(texture, 0.27F * visualScale, photonLifetime(6), 0xFFF4F0FF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 24.0F : -24.0F)
                     .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
         }
@@ -176,6 +176,41 @@ final class ArclightMiniPhotonEffects {
         }
     }
 
+    static void spawnRainTarget(Entity portal, Vec3 targetPosition) {
+        if (!(portal.level() instanceof ClientLevel level) || !shouldRenderPointEffect(level, targetPosition)) {
+            return;
+        }
+
+        StaticLevelEffect effect = new StaticLevelEffect(level);
+        int count = photonCount(14);
+        double pulse = 0.74D + Math.sin(portal.tickCount * 0.32D) * 0.08D;
+        for (int i = 0; i < count; i++) {
+            double angle = Mth.TWO_PI * i / count + portal.tickCount * 0.045D;
+            Vec3 radial = new Vec3(Math.cos(angle), 0.0D, Math.sin(angle));
+            Vec3 position = targetPosition.add(radial.scale(pulse));
+            Vec3 velocity = radial.scale(-0.012D).add(0.0D, 0.009D, 0.0D);
+            createTrailEmitterNoBloom((i & 1) == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE,
+                    0.15F, photonLifetime(5), 0xEEF4F0FF,
+                    velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 24.0F : -24.0F)
+                    .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        createTrailEmitterNoBloom(LIGHT_BIG_TEXTURE, 0.34F, photonLifetime(5), 0xD8FFFFFF,
+                0.0D, 0.012D, 0.0D, 10.0F)
+                .emmit(effect, toVector(targetPosition.add(0.0D, 0.025D, 0.0D)), IDENTITY_ROTATION, UNIT_SCALE);
+
+        if (!useLitePhotonEffects()) {
+            int innerCount = photonCount(8);
+            for (int i = 0; i < innerCount; i++) {
+                double angle = -Mth.TWO_PI * i / innerCount - portal.tickCount * 0.07D;
+                Vec3 radial = new Vec3(Math.cos(angle), 0.0D, Math.sin(angle));
+                Vec3 position = targetPosition.add(radial.scale(pulse * 0.48D));
+                createTrailEmitterNoBloom(LIGHT_SMALL_TEXTURE, 0.1F, photonLifetime(5), 0xCCDDD8FF,
+                        -radial.x * 0.009D, 0.007D, -radial.z * 0.009D, -30.0F)
+                        .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
+            }
+        }
+    }
     private static Vec3 safeDirection(Vec3 direction) {
         return direction.lengthSqr() < 1.0E-6D ? new Vec3(0.0D, 0.0D, 1.0D) : direction.normalize();
     }

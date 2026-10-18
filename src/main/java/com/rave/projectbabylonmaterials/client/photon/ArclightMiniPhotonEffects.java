@@ -27,14 +27,18 @@ final class ArclightMiniPhotonEffects {
     }
 
     static void spawnPortal(Entity projectile, Vec3 direction) {
-        spawnPortal(projectile, direction, 1.0F);
+        spawnPortal(projectile, direction, 1.0F, 6);
+    }
+
+    static void spawnRainPortal(Entity projectile, Vec3 direction) {
+        spawnPortal(projectile, direction, 1.0F, 4);
     }
 
     static void spawnSpearPortal(Entity projectile, Vec3 direction) {
-        spawnPortal(projectile, direction, 1.55F);
+        spawnPortal(projectile, direction, 1.55F, 6);
     }
 
-    private static void spawnPortal(Entity projectile, Vec3 direction, float visualScale) {
+    private static void spawnPortal(Entity projectile, Vec3 direction, float visualScale, int lifetime) {
         if (!(projectile.level() instanceof ClientLevel level)
                 || !shouldRenderTransientEffect(projectile, projectile.tickCount)
                 || direction.lengthSqr() < 1.0E-6D) {
@@ -53,21 +57,25 @@ final class ArclightMiniPhotonEffects {
             Vec3 position = center.add(radial.scale(0.95D * visualScale));
             Vec3 velocity = radial.scale(-0.055D).add(forward.scale(0.008D));
             ResourceLocation texture = (i & 1) == 0 ? LIGHT_SMALL_TEXTURE : LIGHT_MEDIUM_TEXTURE;
-            createTrailEmitterNoBloom(texture, 0.27F * visualScale, photonLifetime(6), 0xFFF4F0FF,
+            createTrailEmitterNoBloom(texture, 0.27F * visualScale, photonLifetime(lifetime), 0xFFF4F0FF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 24.0F : -24.0F)
                     .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
         }
     }
 
     static void spawnLaunch(Entity projectile, Vec3 direction) {
-        spawnLaunch(projectile, direction, 1.0F);
+        spawnLaunch(projectile, direction, 1.0F, 12);
+    }
+
+    static void spawnRainLaunch(Entity projectile, Vec3 direction) {
+        spawnLaunch(projectile, direction, 1.0F, 7);
     }
 
     static void spawnSpearLaunch(Entity projectile, Vec3 direction) {
-        spawnLaunch(projectile, direction, 1.35F);
+        spawnLaunch(projectile, direction, 1.35F, 12);
     }
 
-    private static void spawnLaunch(Entity projectile, Vec3 direction, float visualScale) {
+    private static void spawnLaunch(Entity projectile, Vec3 direction, float visualScale, int lifetime) {
         if (!(projectile.level() instanceof ClientLevel level)
                 || !shouldRenderTransientEffect(projectile, projectile.tickCount)) {
             return;
@@ -83,21 +91,25 @@ final class ArclightMiniPhotonEffects {
             Vec3 radial = right.scale(Math.cos(angle)).add(up.scale(Math.sin(angle)));
             Vec3 velocity = radial.scale(0.07D).add(forward.scale(0.14D + (i % 3) * 0.025D));
             createTrailEmitterNoBloom((i % 3) == 0 ? LIGHT_BIG_TEXTURE : LIGHT_SMALL_TEXTURE,
-                    ((i % 3) == 0 ? 0.23F : 0.14F) * visualScale, photonLifetime(12), 0xFFFFFFFF,
+                    ((i % 3) == 0 ? 0.23F : 0.14F) * visualScale, photonLifetime(lifetime), 0xFFFFFFFF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 34.0F : -34.0F)
                     .emmit(effect, toVector(projectile.position().add(radial.scale(0.18D * visualScale))), IDENTITY_ROTATION, UNIT_SCALE);
         }
     }
 
     static void spawnFlight(Entity projectile, Vec3 movement) {
-        spawnFlight(projectile, movement, 1.0F);
+        spawnFlight(projectile, movement, 1.0F, 9);
+    }
+
+    static void spawnRainFlight(Entity projectile, Vec3 movement) {
+        spawnFlight(projectile, movement, 1.0F, 5);
     }
 
     static void spawnSpearFlight(Entity projectile, Vec3 movement) {
-        spawnFlight(projectile, movement, 1.35F);
+        spawnFlight(projectile, movement, 1.35F, 9);
     }
 
-    private static void spawnFlight(Entity projectile, Vec3 movement, float visualScale) {
+    private static void spawnFlight(Entity projectile, Vec3 movement, float visualScale, int lifetime) {
         if (!(projectile.level() instanceof ClientLevel level)
                 || movement.lengthSqr() < 1.0E-6D
                 || !shouldRenderTransientEffect(projectile, projectile.tickCount)) {
@@ -108,7 +120,7 @@ final class ArclightMiniPhotonEffects {
         Vec3 right = horizontalRight(forward);
         Vec3 center = projectile.position().subtract(forward.scale(0.35D));
         StaticLevelEffect effect = new StaticLevelEffect(level);
-        createTrailEmitterNoBloom(LIGHT_MEDIUM_TEXTURE, 0.16F * visualScale, photonLifetime(9), 0xFFFFFFFF,
+        createTrailEmitterNoBloom(LIGHT_MEDIUM_TEXTURE, 0.16F * visualScale, photonLifetime(lifetime), 0xFFFFFFFF,
                 -forward.x * 0.025D, -forward.y * 0.025D, -forward.z * 0.025D, 28.0F)
                 .emmit(effect, toVector(center), IDENTITY_ROTATION, UNIT_SCALE);
         if (!useLitePhotonEffects()) {
@@ -123,14 +135,18 @@ final class ArclightMiniPhotonEffects {
     }
 
     static void spawnImpact(Entity projectile, Vec3 hitPos, Vec3 direction) {
-        spawnImpact(projectile, hitPos, direction, 1.0F);
+        spawnImpact(projectile, hitPos, direction, 1.0F, 15);
+    }
+
+    static void spawnRainImpact(Entity projectile, Vec3 hitPos, Vec3 direction) {
+        spawnImpact(projectile, hitPos, direction, 1.0F, 8);
     }
 
     static void spawnSpearImpact(Entity projectile, Vec3 hitPos, Vec3 direction) {
-        spawnImpact(projectile, hitPos, direction, 1.4F);
+        spawnImpact(projectile, hitPos, direction, 1.4F, 15);
     }
 
-    private static void spawnImpact(Entity projectile, Vec3 hitPos, Vec3 direction, float visualScale) {
+    private static void spawnImpact(Entity projectile, Vec3 hitPos, Vec3 direction, float visualScale, int lifetime) {
         if (!(projectile.level() instanceof ClientLevel level) || !shouldRenderPointEffect(level, hitPos)) {
             return;
         }
@@ -144,21 +160,25 @@ final class ArclightMiniPhotonEffects {
             Vec3 velocity = new Vec3(Math.cos(angle) * 0.12D, lift, Math.sin(angle) * 0.12D)
                     .add(forward.scale(0.035D));
             createTrailEmitterNoBloom((i % 4) == 0 ? LIGHT_BIG_TEXTURE : LIGHT_SMALL_TEXTURE,
-                    ((i % 4) == 0 ? 0.25F : 0.14F) * visualScale, photonLifetime(15), 0xFFFFFFFF,
+                    ((i % 4) == 0 ? 0.25F : 0.14F) * visualScale, photonLifetime(lifetime), 0xFFFFFFFF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 42.0F : -42.0F)
                     .emmit(effect, toVector(hitPos), IDENTITY_ROTATION, UNIT_SCALE);
         }
     }
 
     static void spawnDissolve(Entity projectile, Vec3 position) {
-        spawnDissolve(projectile, position, 1.0F);
+        spawnDissolve(projectile, position, 1.0F, 13);
+    }
+
+    static void spawnRainDissolve(Entity projectile, Vec3 position) {
+        spawnDissolve(projectile, position, 1.0F, 7);
     }
 
     static void spawnSpearDissolve(Entity projectile, Vec3 position) {
-        spawnDissolve(projectile, position, 1.4F);
+        spawnDissolve(projectile, position, 1.4F, 13);
     }
 
-    private static void spawnDissolve(Entity projectile, Vec3 position, float visualScale) {
+    private static void spawnDissolve(Entity projectile, Vec3 position, float visualScale, int lifetime) {
         if (!(projectile.level() instanceof ClientLevel level) || !shouldRenderPointEffect(level, position)) {
             return;
         }
@@ -170,9 +190,42 @@ final class ArclightMiniPhotonEffects {
             Vec3 velocity = new Vec3(Math.cos(angle) * 0.045D, 0.025D + (i % 3) * 0.012D,
                     Math.sin(angle) * 0.045D);
             createTrailEmitterNoBloom(i % 3 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE,
-                    0.13F * visualScale, photonLifetime(13), 0xDDF4F0FF,
+                    0.13F * visualScale, photonLifetime(lifetime), 0xDDF4F0FF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 25.0F : -25.0F)
                     .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+    }
+
+    static void spawnRainExplosion(Entity projectile, Vec3 hitPos) {
+        if (!(projectile.level() instanceof ClientLevel level) || !shouldRenderPointEffect(level, hitPos)) {
+            return;
+        }
+
+        StaticLevelEffect effect = new StaticLevelEffect(level);
+        int burstCount = photonCount(24);
+        for (int i = 0; i < burstCount; i++) {
+            double y = 1.0D - 2.0D * (i + 0.5D) / burstCount;
+            double radial = Math.sqrt(Math.max(0.0D, 1.0D - y * y));
+            double angle = i * 2.399963229728653D;
+            Vec3 direction = new Vec3(Math.cos(angle) * radial, y, Math.sin(angle) * radial);
+            double speed = 0.13D + (i % 4) * 0.025D;
+            ResourceLocation texture = i % 5 == 0 ? LIGHT_BIG_TEXTURE
+                    : i % 2 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE;
+            float size = i % 5 == 0 ? 0.34F : i % 2 == 0 ? 0.2F : 0.12F;
+            createTrailEmitterNoBloom(texture, size, photonLifetime(9), 0xFFFFFFFF,
+                    direction.x * speed, direction.y * speed, direction.z * speed,
+                    (i & 1) == 0 ? 38.0F : -38.0F)
+                    .emmit(effect, toVector(hitPos), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+
+        int ringCount = photonCount(12);
+        for (int i = 0; i < ringCount; i++) {
+            double angle = Mth.TWO_PI * i / ringCount;
+            Vec3 direction = new Vec3(Math.cos(angle), 0.025D, Math.sin(angle));
+            createTrailEmitterNoBloom(LIGHT_MEDIUM_TEXTURE, 0.21F, photonLifetime(7), 0xE8F4F0FF,
+                    direction.x * 0.22D, direction.y, direction.z * 0.22D,
+                    (i & 1) == 0 ? 30.0F : -30.0F)
+                    .emmit(effect, toVector(hitPos.add(0.0D, 0.05D, 0.0D)), IDENTITY_ROTATION, UNIT_SCALE);
         }
     }
 
@@ -190,12 +243,12 @@ final class ArclightMiniPhotonEffects {
             Vec3 position = targetPosition.add(radial.scale(pulse));
             Vec3 velocity = radial.scale(-0.012D).add(0.0D, 0.009D, 0.0D);
             createTrailEmitterNoBloom((i & 1) == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE,
-                    0.15F, photonLifetime(5), 0xEEF4F0FF,
+                    0.15F, photonLifetime(3), 0xEEF4F0FF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 24.0F : -24.0F)
                     .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
         }
 
-        createTrailEmitterNoBloom(LIGHT_BIG_TEXTURE, 0.34F, photonLifetime(5), 0xD8FFFFFF,
+        createTrailEmitterNoBloom(LIGHT_BIG_TEXTURE, 0.34F, photonLifetime(3), 0xD8FFFFFF,
                 0.0D, 0.012D, 0.0D, 10.0F)
                 .emmit(effect, toVector(targetPosition.add(0.0D, 0.025D, 0.0D)), IDENTITY_ROTATION, UNIT_SCALE);
 
@@ -205,7 +258,7 @@ final class ArclightMiniPhotonEffects {
                 double angle = -Mth.TWO_PI * i / innerCount - portal.tickCount * 0.07D;
                 Vec3 radial = new Vec3(Math.cos(angle), 0.0D, Math.sin(angle));
                 Vec3 position = targetPosition.add(radial.scale(pulse * 0.48D));
-                createTrailEmitterNoBloom(LIGHT_SMALL_TEXTURE, 0.1F, photonLifetime(5), 0xCCDDD8FF,
+                createTrailEmitterNoBloom(LIGHT_SMALL_TEXTURE, 0.1F, photonLifetime(3), 0xCCDDD8FF,
                         -radial.x * 0.009D, 0.007D, -radial.z * 0.009D, -30.0F)
                         .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
             }

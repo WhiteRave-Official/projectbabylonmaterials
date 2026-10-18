@@ -1,0 +1,11 @@
+{
+  "loader": "forge:obj",
+  "model": "project_babylon_materials:models/particle/light_breach_cylinder.obj",
+  "flip_v": false,
+  "automatic_culling": false,
+  "shade_quads": false,
+  "textures": {
+    "light": "project_babylon_materials:particles/light_breach_cylinder",
+    "particle": "project_babylon_materials:particles/light_breach_cylinder"
+  }
+}

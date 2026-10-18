@@ -2,6 +2,10 @@ package com.rave.projectbabylonmaterials.client.tooltip;
 
 import com.mojang.datafixers.util.Either;
 import com.rave.projectbabylonmaterials.ProjectBabylonMaterials;
+import com.rave.projectbabylonmaterials.client.tooltip.modern.ModernArmorSetClientTooltip;
+import com.rave.projectbabylonmaterials.client.tooltip.modern.ModernItemClientTooltip;
+import com.rave.projectbabylonmaterials.client.tooltip.modern.ModernItemTooltipData;
+import com.rave.projectbabylonmaterials.config.PBMClientConfig;
 import com.rave.projectbabylonmaterials.setbonus.ArmorPieceTooltipData;
 import com.rave.projectbabylonmaterials.setbonus.ArmorSetBonusManager;
 import com.rave.projectbabylonmaterials.setbonus.ArmorSetBonusTooltipData;
@@ -70,6 +74,9 @@ public final class ArmorSetTooltipEvents {
 
         @SubscribeEvent
         public static void onRegisterTooltipFactories(RegisterClientTooltipComponentFactoriesEvent event) {
+            event.register(ModernItemTooltipData.class, ModernItemClientTooltip::new);
+            event.register(ArmorSetTooltipData.class, data -> PBMClientConfig.modernTooltips()
+                    ? new ModernArmorSetClientTooltip(data) : new ArmorSetClientTooltip(data));
             event.register(ArmorPieceTooltipData.class, ArmorPieceClientTooltip::new);
             event.register(ArmorSetBonusTooltipData.class, ArmorSetBonusClientTooltip::new);
             event.register(IconLabelTooltipData.class, IconLabelClientTooltip::new);

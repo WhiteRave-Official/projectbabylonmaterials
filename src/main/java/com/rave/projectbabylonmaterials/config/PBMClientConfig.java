@@ -15,6 +15,19 @@ public final class PBMClientConfig {
     private PBMClientConfig() {
     }
 
+    public static TooltipStyle tooltipStyle() {
+        return HOLDER.tooltipStyle.get();
+    }
+
+    public static boolean modernTooltips() {
+        return tooltipStyle() == TooltipStyle.MODERN;
+    }
+
+    public enum TooltipStyle {
+        CLASSIC,
+        MODERN
+    }
+
     public static boolean showCustomCombatHud() {
         return HOLDER.showCustomCombatHud.get();
     }
@@ -57,6 +70,7 @@ public final class PBMClientConfig {
     }
 
     private static final class Holder {
+        private final ForgeConfigSpec.EnumValue<TooltipStyle> tooltipStyle;
         private final ForgeConfigSpec.BooleanValue showCustomCombatHud;
         private final ForgeConfigSpec.BooleanValue hideVanillaArmorHud;
         private final ForgeConfigSpec.EnumValue<CombatHudPosition> combatHudPosition;
@@ -65,6 +79,10 @@ public final class PBMClientConfig {
         private final ForgeConfigSpec.EnumValue<PhotonMode> photonMode;
 
         private Holder(ForgeConfigSpec.Builder builder) {
+            builder.push("gui");
+            tooltipStyle = builder.defineEnum("tooltipStyle", TooltipStyle.MODERN);
+            builder.pop();
+
             builder.push("hud");
             showCustomCombatHud = builder
                     .comment("Show the custom armor and toughness HUD next to the hotbar.")

@@ -53,6 +53,7 @@ public final class PBMPhotonEffectHelper {
     public static void spawnBlessingHealPulse(Entity entity) { PhotonAmbientEffects.spawnBlessingHealPulse(entity); }
     public static void spawnBlessingAbsorptionPulse(Entity entity) { PhotonAmbientEffects.spawnBlessingAbsorptionPulse(entity); }
     public static void spawnAbsorptionShield(LivingEntity entity, float progress, int tick, float absorptionAmount) { PhotonAmbientEffects.spawnAbsorptionShield(entity, progress, tick, absorptionAmount); }
+    public static void spawnBarrierShield(LivingEntity entity, float progress, int tick, float barrierAmount) { PhotonAmbientEffects.spawnBarrierShield(entity, progress, tick, barrierAmount); }
 
     public static void spawnDragonDescendFlight(Entity projectile, Vec3 movement) { PhotonProjectileEffects.spawnDragonDescendFlight(projectile, movement); }
     public static void spawnDragonDescendFlight(Entity projectile, Vec3 movement, int trailVisualLifetimeTicks) { PhotonProjectileEffects.spawnDragonDescendFlight(projectile, movement, trailVisualLifetimeTicks); }
@@ -71,16 +72,31 @@ public final class PBMPhotonEffectHelper {
     public static void spawnDiamondProjectileImpact(Entity projectile, Vec3 hitPos) { PhotonProjectileEffects.spawnDiamondProjectileImpact(projectile, hitPos); }
 
     public static void spawnArclightMiniPortal(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnPortal(projectile, direction); }
+    public static void spawnArclightRainPortal(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnRainPortal(projectile, direction); }
     public static void spawnArclightRainTarget(Entity portal, Vec3 targetPosition) { ArclightMiniPhotonEffects.spawnRainTarget(portal, targetPosition); }
+    public static void spawnArclightRainExplosion(Entity projectile, Vec3 hitPos) { ArclightMiniPhotonEffects.spawnRainExplosion(projectile, hitPos); }
     public static void spawnArclightMiniLaunch(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnLaunch(projectile, direction); }
+    public static void spawnArclightRainLaunch(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnRainLaunch(projectile, direction); }
     public static void spawnArclightMiniFlight(Entity projectile, Vec3 movement) { ArclightMiniPhotonEffects.spawnFlight(projectile, movement); }
+    public static void spawnArclightRainFlight(Entity projectile, Vec3 movement) { ArclightMiniPhotonEffects.spawnRainFlight(projectile, movement); }
     public static void spawnArclightMiniImpact(Entity projectile, Vec3 hitPos, Vec3 direction) { ArclightMiniPhotonEffects.spawnImpact(projectile, hitPos, direction); }
+    public static void spawnArclightRainImpact(Entity projectile, Vec3 hitPos, Vec3 direction) { ArclightMiniPhotonEffects.spawnRainImpact(projectile, hitPos, direction); }
     public static void spawnArclightMiniDissolve(Entity projectile, Vec3 position) { ArclightMiniPhotonEffects.spawnDissolve(projectile, position); }
+    public static void spawnArclightRainDissolve(Entity projectile, Vec3 position) { ArclightMiniPhotonEffects.spawnRainDissolve(projectile, position); }
     public static void spawnArclightSpearPortal(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnSpearPortal(projectile, direction); }
     public static void spawnArclightSpearLaunch(Entity projectile, Vec3 direction) { ArclightMiniPhotonEffects.spawnSpearLaunch(projectile, direction); }
     public static void spawnArclightSpearFlight(Entity projectile, Vec3 movement) { ArclightMiniPhotonEffects.spawnSpearFlight(projectile, movement); }
     public static void spawnArclightSpearImpact(Entity projectile, Vec3 hitPos, Vec3 direction) { ArclightMiniPhotonEffects.spawnSpearImpact(projectile, hitPos, direction); }
     public static void spawnArclightSpearDissolve(Entity projectile, Vec3 position) { ArclightMiniPhotonEffects.spawnSpearDissolve(projectile, position); }
+    public static void spawnLightBreachPreparation(Entity caster, int age) {
+        LightBreachPhotonEffects.preparation(caster, age);
+    }
+
+    public static LightBreachColumnVisual createLightBreachColumn(Entity controller, Vec3 base,
+                                                                 float radius, float height) {
+        return LightBreachPhotonEffects.createColumn(controller, base, radius, height);
+    }
+
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         PhotonPersistentEffects.onClientTick(event);

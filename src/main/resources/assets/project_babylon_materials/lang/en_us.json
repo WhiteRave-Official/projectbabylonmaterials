@@ -191,5 +191,13 @@
     "effect.project_babylon_materials.ash_memory_buff":  "Ash Memory",
     "effect.project_babylon_materials.holy_sigil_buff":  "Holy Sigil",
     "effect.project_babylon_materials.crit_resistance_buff":  "Crit Resistance",
-    "effect.project_babylon_materials.provoke_debuff":  "Provoke"
+    "effect.project_babylon_materials.provoke_debuff":  "Provoke",
+    "tooltip.project_babylon_materials.modern.durability": "Durability",
+    "tooltip.project_babylon_materials.modern.hint.alt": "Gems",
+    "tooltip.project_babylon_materials.modern.hint.ctrl": "Enchants",
+    "tooltip.project_babylon_materials.modern.hint.shift": "Set",
+    "tooltip.project_babylon_materials.modern.slot.chest": "Chest Armor",
+    "tooltip.project_babylon_materials.modern.slot.feet": "Foot Armor",
+    "tooltip.project_babylon_materials.modern.slot.head": "Head Armor",
+    "tooltip.project_babylon_materials.modern.slot.legs": "Leg Armor"
 }

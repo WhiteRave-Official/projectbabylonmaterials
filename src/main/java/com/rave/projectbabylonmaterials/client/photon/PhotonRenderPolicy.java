@@ -64,7 +64,7 @@ final class PhotonRenderPolicy {
         if (!useLitePhotonEffects()) {
             return baseLifetime;
         }
-        return Math.max(6, Mth.ceil(baseLifetime * 0.6F));
+        return Math.max(3, Mth.ceil(baseLifetime * 0.6F));
     }
 
     static boolean shouldRenderPersistentEffect(Entity entity, int tick) {

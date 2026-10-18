@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 public class FrozenDebuff extends MobEffect {
 
     public FrozenDebuff() {
-        super(MobEffectCategory.HARMFUL, 0x87CEEB); // Light blue color (ice color)
+        super(MobEffectCategory.HARMFUL, 0x87CEEB);
     }
 
     @Override

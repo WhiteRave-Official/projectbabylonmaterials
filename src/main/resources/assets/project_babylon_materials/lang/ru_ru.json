@@ -173,5 +173,13 @@
     "enchantment.minecraft.thorns.desc": "Может нанести урон атакующему при получении урона",
     "enchantment.minecraft.unbreaking.desc": "Даёт шанс не потерять прочность",
     "enchantment.minecraft.vanishing_curse.desc": "Предмет исчезает после смерти",
-    "enchantment.project_babylon_materials.magic_resistance.desc": "Увеличивает сопротивление магическому урону"
+    "enchantment.project_babylon_materials.magic_resistance.desc": "Увеличивает сопротивление магическому урону",
+    "tooltip.project_babylon_materials.modern.durability": "\u041f\u0440\u043e\u0447\u043d\u043e\u0441\u0442\u044c",
+    "tooltip.project_babylon_materials.modern.hint.alt": "\u041a\u0430\u043c\u043d\u0438",
+    "tooltip.project_babylon_materials.modern.hint.ctrl": "\u0427\u0430\u0440\u044b",
+    "tooltip.project_babylon_materials.modern.hint.shift": "\u041a\u043e\u043c\u043f\u043b\u0435\u043a\u0442",
+    "tooltip.project_babylon_materials.modern.slot.chest": "\u041d\u0430\u0433\u0440\u0443\u0434\u043d\u044b\u0439 \u0434\u043e\u0441\u043f\u0435\u0445",
+    "tooltip.project_babylon_materials.modern.slot.feet": "\u041e\u0431\u0443\u0432\u044c",
+    "tooltip.project_babylon_materials.modern.slot.head": "\u0413\u043e\u043b\u043e\u0432\u043d\u043e\u0439 \u0434\u043e\u0441\u043f\u0435\u0445",
+    "tooltip.project_babylon_materials.modern.slot.legs": "\u041d\u043e\u0436\u043d\u043e\u0439 \u0434\u043e\u0441\u043f\u0435\u0445"
 }

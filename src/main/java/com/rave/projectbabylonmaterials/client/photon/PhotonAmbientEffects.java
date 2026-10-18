@@ -480,6 +480,134 @@ final class PhotonAmbientEffects {
         createTrailEmitter(ABSORPTION_TEXTURE, size * 1.8F, 12, withAlpha(0xFFFFE7A6, Mth.clamp((int) (56.0F + (clampedProgress * 56.0F)), 0, 255)), 0.0D, 0.012D, 0.0D, 12.0F)
                 .emmit(effect, new Vector3f((float) centerX, (float) (centerY + (height * 0.5F)), (float) centerZ), IDENTITY_ROTATION, new Vector3f(1.15F + (clampedProgress * 0.2F), 1.0F, 1.15F + (clampedProgress * 0.2F)));
     }
+    public static void spawnBarrierShield(LivingEntity entity, float progress, int tick, float barrierAmount) {
+        if (ShadowFormClientState.isConcealed(entity) || !(entity.level() instanceof ClientLevel level)
+                || progress <= 0.01F || tick % 3 != 0 || !shouldRenderTransientEffect(entity, tick)) {
+            return;
+        }
+
+        StaticLevelEffect effect = new StaticLevelEffect(level);
+        float clampedProgress = Mth.clamp(progress, 0.0F, 1.0F);
+        float intensity = Mth.clamp(barrierAmount / Math.max(1.0F, entity.getMaxHealth()), 0.0F, 1.0F);
+        float width = Math.max(entity.getBbWidth(), 0.6F);
+        float height = Math.max(entity.getBbHeight(), 1.2F);
+        float horizontalRadius = Math.max(width * 0.92F, height * 0.46F) + 0.38F + clampedProgress * 0.12F;
+        float verticalRadius = height * 0.56F + 0.18F;
+        Vec3 center = entity.position().add(0.0D, height * 0.5F, 0.0D);
+        float baseAngle = tick * (0.12F + intensity * 0.045F);
+        int white = withAlpha(0xFFFFFFFF, Mth.clamp((int) (92.0F + clampedProgress * 94.0F), 0, 255));
+        int warmWhite = withAlpha(0xFFFFF2CA, Mth.clamp((int) (70.0F + clampedProgress * 82.0F), 0, 255));
+
+        spawnBarrierSpiralShell(effect, center, horizontalRadius, verticalRadius, baseAngle, white, warmWhite);
+        spawnBarrierTiltedRings(effect, center, horizontalRadius * 0.96F, verticalRadius * 0.96F,
+                -baseAngle * 0.78F, white, warmWhite);
+        spawnBarrierInnerFlow(effect, center, horizontalRadius * 0.72F, verticalRadius * 0.72F,
+                baseAngle * 1.45F, white);
+    }
+
+    private static void spawnBarrierSpiralShell(StaticLevelEffect effect, Vec3 center,
+                                                float horizontalRadius, float verticalRadius,
+                                                float baseAngle, int white, int warmWhite) {
+        int streamCount = photonCount(4);
+        int pointsPerStream = photonCount(7);
+        for (int stream = 0; stream < streamCount; stream++) {
+            float direction = (stream & 1) == 0 ? 1.0F : -1.0F;
+            float streamPhase = Mth.TWO_PI * stream / streamCount;
+            for (int point = 0; point < pointsPerStream; point++) {
+                float polar = Mth.PI * (point + 0.5F) / pointsPerStream;
+                float azimuth = streamPhase + baseAngle * direction + polar * (2.15F * direction);
+                Vec3 position = barrierSpherePoint(center, horizontalRadius, verticalRadius, polar, azimuth);
+                float nextPolar = Mth.clamp(polar + 0.11F, 0.08F, Mth.PI - 0.08F);
+                Vec3 next = barrierSpherePoint(center, horizontalRadius, verticalRadius,
+                        nextPolar, azimuth + 0.17F * direction);
+                Vec3 velocity = next.subtract(position).normalize().scale(0.024D);
+
+                int selector = point + stream * 3;
+                ResourceLocation texture = selector % 11 == 0
+                        ? LIGHT_BIG_TEXTURE
+                        : selector % 3 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE;
+                float size = texture == LIGHT_BIG_TEXTURE ? 0.21F
+                        : texture == LIGHT_MEDIUM_TEXTURE ? 0.14F : 0.085F;
+                int color = (selector & 1) == 0 ? white : warmWhite;
+                createTrailEmitterNoBloom(texture, size, photonLifetime(8), color,
+                        velocity.x, velocity.y, velocity.z, 22.0F * direction,
+                        azimuth * Mth.RAD_TO_DEG)
+                        .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
+            }
+        }
+    }
+
+    private static void spawnBarrierTiltedRings(StaticLevelEffect effect, Vec3 center,
+                                                float horizontalRadius, float verticalRadius,
+                                                float baseAngle, int white, int warmWhite) {
+        int ringCount = 3;
+        int pointsPerRing = photonCount(6);
+        for (int ring = 0; ring < ringCount; ring++) {
+            float direction = (ring & 1) == 0 ? 1.0F : -1.0F;
+            float tilt = (ring - 1.0F) * 0.46F;
+            float cosTilt = Mth.cos(tilt);
+            float sinTilt = Mth.sin(tilt);
+            for (int point = 0; point < pointsPerRing; point++) {
+                float angle = baseAngle * direction + Mth.TWO_PI * point / pointsPerRing
+                        + Mth.TWO_PI * ring / ringCount;
+                float cos = Mth.cos(angle);
+                float sin = Mth.sin(angle);
+                Vec3 position = center.add(
+                        cos * horizontalRadius,
+                        sin * verticalRadius * cosTilt,
+                        sin * horizontalRadius * sinTilt
+                );
+                Vec3 tangent = new Vec3(
+                        -sin * horizontalRadius,
+                        cos * verticalRadius * cosTilt,
+                        cos * horizontalRadius * sinTilt
+                ).normalize().scale(0.02D * direction);
+
+                boolean accent = (point + ring) % 5 == 0;
+                ResourceLocation texture = accent ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE;
+                float size = accent ? 0.13F : 0.076F;
+                createTrailEmitterNoBloom(texture, size, photonLifetime(7),
+                        accent ? warmWhite : white, tangent.x, tangent.y, tangent.z,
+                        18.0F * direction, angle * Mth.RAD_TO_DEG)
+                        .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
+            }
+        }
+    }
+
+    private static void spawnBarrierInnerFlow(StaticLevelEffect effect, Vec3 center,
+                                              float horizontalRadius, float verticalRadius,
+                                              float baseAngle, int color) {
+        int count = photonCount(8);
+        for (int i = 0; i < count; i++) {
+            float normalized = (i + 0.5F) / count;
+            float y = 1.0F - 2.0F * normalized;
+            float radial = Mth.sqrt(Math.max(0.0F, 1.0F - y * y));
+            float angle = baseAngle + i * 2.3999631F;
+            Vec3 position = center.add(
+                    Mth.cos(angle) * radial * horizontalRadius,
+                    y * verticalRadius,
+                    Mth.sin(angle) * radial * horizontalRadius
+            );
+            Vec3 tangent = new Vec3(-Mth.sin(angle), 0.22D * Mth.cos(angle * 0.7F), Mth.cos(angle))
+                    .normalize().scale(0.017D);
+            ResourceLocation texture = i % 4 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE;
+            float size = i % 4 == 0 ? 0.11F : 0.066F;
+            createTrailEmitterNoBloom(texture, size, photonLifetime(6), color,
+                    tangent.x, tangent.y, tangent.z, (i & 1) == 0 ? 16.0F : -16.0F,
+                    angle * Mth.RAD_TO_DEG)
+                    .emmit(effect, toVector(position), IDENTITY_ROTATION, UNIT_SCALE);
+        }
+    }
+
+    private static Vec3 barrierSpherePoint(Vec3 center, float horizontalRadius, float verticalRadius,
+                                           float polar, float azimuth) {
+        float sinPolar = Mth.sin(polar);
+        return center.add(
+                Mth.cos(azimuth) * sinPolar * horizontalRadius,
+                Mth.cos(polar) * verticalRadius,
+                Mth.sin(azimuth) * sinPolar * horizontalRadius
+        );
+    }
     private static void spawnAbsorptionShieldRing(StaticLevelEffect effect, double centerX, double centerY, double centerZ,
                                                   float radius, float baseAngle, int particleCount, float size,
                                                   int lifetime, int color, ResourceLocation texture,

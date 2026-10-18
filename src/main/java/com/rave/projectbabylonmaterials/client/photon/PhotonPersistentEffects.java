@@ -559,7 +559,7 @@ final class PhotonPersistentEffects {
             Vec3 velocity = inward.scale(0.105D + ramp * 0.045D).add(tangent.scale(0.055D));
             ResourceLocation texture = i % 3 == 0 ? LIGHT_BIG_TEXTURE : (i % 2 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE);
             float size = i % 3 == 0 ? 0.42F : (i % 2 == 0 ? 0.29F : 0.2F);
-            createTrailEmitterNoBloom(texture, size, 20, 0xE9FFFFFF, velocity.x, velocity.y, velocity.z,
+            createTrailEmitterNoBloom(texture, size, 10, 0xE9FFFFFF, velocity.x, velocity.y, velocity.z,
                     (i & 1) == 0 ? 18.0F : -18.0F, angle * Mth.RAD_TO_DEG)
                     .emmit(effect, toVector(origin), IDENTITY_ROTATION, UNIT_SCALE);
         }
@@ -573,7 +573,7 @@ final class PhotonPersistentEffects {
                     target.z + Math.sin(angle) * radius);
             Vec3 velocity = target.subtract(origin).normalize().scale(0.12D + ramp * 0.06D);
             ResourceLocation texture = (i & 1) == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE;
-            createTrailEmitterNoBloom(texture, (i & 1) == 0 ? 0.28F : 0.18F, 14, 0xFFFFFFFF,
+            createTrailEmitterNoBloom(texture, (i & 1) == 0 ? 0.28F : 0.18F, 8, 0xFFFFFFFF,
                     velocity.x, velocity.y, velocity.z, (i & 1) == 0 ? 26.0F : -26.0F)
                     .emmit(effect, toVector(origin), IDENTITY_ROTATION, UNIT_SCALE);
         }
@@ -592,7 +592,7 @@ final class PhotonPersistentEffects {
             double speed = 0.18D + (i % 7) * 0.018D;
             ResourceLocation texture = i % 5 == 0 ? LIGHT_BIG_TEXTURE : (i % 2 == 0 ? LIGHT_MEDIUM_TEXTURE : LIGHT_SMALL_TEXTURE);
             float size = i % 5 == 0 ? 0.58F : (i % 2 == 0 ? 0.34F : 0.22F);
-            createTrailEmitterNoBloom(texture, size, 22, 0xFFFFFFFF,
+            createTrailEmitterNoBloom(texture, size, 12, 0xFFFFFFFF,
                     direction.x * speed, direction.y * speed, direction.z * speed,
                     (i & 1) == 0 ? 34.0F : -34.0F, (float) angle * Mth.RAD_TO_DEG)
                     .emmit(effect, toVector(center), IDENTITY_ROTATION, UNIT_SCALE);
@@ -602,7 +602,7 @@ final class PhotonPersistentEffects {
         for (int i = 0; i < ringCount; i++) {
             float angle = i * Mth.TWO_PI / ringCount;
             Vec3 direction = new Vec3(Math.cos(angle), 0.08D, Math.sin(angle)).normalize();
-            createTrailEmitterNoBloom(LIGHT_BIG_TEXTURE, 0.52F, 18, 0xE9FFFFFF,
+            createTrailEmitterNoBloom(LIGHT_BIG_TEXTURE, 0.52F, 10, 0xE9FFFFFF,
                     direction.x * 0.3D, direction.y * 0.3D, direction.z * 0.3D,
                     (i & 1) == 0 ? 28.0F : -28.0F, angle * Mth.RAD_TO_DEG)
                     .emmit(effect, toVector(center), IDENTITY_ROTATION, new Vector3f(1.25F, 1.0F, 1.25F));

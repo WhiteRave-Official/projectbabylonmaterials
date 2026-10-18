@@ -15,7 +15,7 @@ final class IronSpellbooksEffectCompat {
 
     static double getAttributeValue(LivingEntity entity, String attributeId, double fallback) {
         Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(ResourceLocation.tryParse(attributeId));
-        return attribute != null ? entity.getAttributeValue(attribute) : fallback;
+        return attribute != null && entity.getAttribute(attribute) != null ? entity.getAttributeValue(attribute) : fallback;
     }
 
     static DamageSource createDamageSource(ServerLevel level, String damageTypeId) {

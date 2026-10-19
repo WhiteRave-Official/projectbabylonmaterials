@@ -40,6 +40,8 @@ public final class Bleeding {
         var record = new BleedOwnerData(owner.getUUID(), owner.level().dimension().location().toString(), owner instanceof Player,
                 power(owner, SPELL_POWER), power(owner, BLOOD_POWER));
         boolean applied = target.addEffect(new MobEffectInstance(PBMEffects.BLEED_DEBUFF.get(), event.duration(), level), owner);
+        ProjectBabylonMaterials.LOGGER.debug("BLEED_APPLY tick={} target={} owner={} duration={} amplifier={} applied={}",
+                target.level().getGameTime(), target.getUUID(), owner.getUUID(), event.duration(), level, applied);
 
         BleedOwnerData.recordApplication(target.getPersistentData(), record, applied);
         if (applied) {
@@ -68,11 +70,20 @@ public final class Bleeding {
     public static boolean detonate(LivingEntity target) {
         if (!(target.level() instanceof ServerLevel)) return false;
         var effect = target.getEffect(PBMEffects.BLEED_DEBUFF.get());
-        if (effect == null || effect.isInfiniteDuration()) return false;
+        if (effect == null || effect.isInfiniteDuration()) {
+            ProjectBabylonMaterials.LOGGER.debug("BLEED_DETONATE_SKIP target={} reason={}",
+                    target.getUUID(), effect == null ? "no_effect" : "infinite_duration");
+            return false;
+        }
         var record = getOwnerData(target);
         var owner = resolveOwner(target, record);
         float damage = tickDamage(target, effect.getAmplifier()) * BleedRules.remainingTicks(effect.getDuration(), interval(target));
-        if (!target.removeEffect(PBMEffects.BLEED_DEBUFF.get())) return false;
+        ProjectBabylonMaterials.LOGGER.debug("BLEED_DETONATE_BEGIN target={} owner={} duration={} amplifier={} interval={} requested={}",
+                target.getUUID(), record == null ? null : record.ownerId(), effect.getDuration(), effect.getAmplifier(), interval(target), damage);
+        boolean removed = target.removeEffect(PBMEffects.BLEED_DEBUFF.get());
+        ProjectBabylonMaterials.LOGGER.debug("BLEED_DETONATE_REMOVE target={} removed={} remaining={}",
+                target.getUUID(), removed, target.hasEffect(PBMEffects.BLEED_DEBUFF.get()));
+        if (!removed) return false;
         if (damage > 0 && target.isAlive()) dealDamage(target, damage, true, record, owner);
         return true;
     }

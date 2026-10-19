@@ -8,15 +8,10 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 final class ModernAttributeClientTooltip implements ClientTooltipComponent {
     private static final Pattern MODIFIER_KEY = Pattern.compile("attribute\\.modifier\\.(plus|take|equals)\\.[012]");
-    private static final Map<String, String> ICONS = Map.of(
-            "attribute.name.generic.armor", "armor_icon",
-            "attribute.name.generic.armor_toughness", "armor_toughness_icon",
-            "attribute.name.project_babylon_materials.magic_armor", "magic_armor_icon");
     private final List<Component> label;
     private final Component value;
     private final ResourceLocation icon;
@@ -28,10 +23,7 @@ final class ModernAttributeClientTooltip implements ClientTooltipComponent {
         this.value = value;
         this.label = ModernTooltipDrawing.wrap(font, name, width - font.width(value) - 30);
         this.height = Math.max(17, label.size() * (font.lineHeight + 2) + 5);
-        String iconName = name.getContents() instanceof TranslatableContents translation
-                ? ICONS.get(translation.getKey()) : null;
-        this.icon = iconName == null ? null : ResourceLocation.fromNamespaceAndPath("project_babylon_materials",
-                "textures/gui/hud/" + iconName + ".png");
+        this.icon = AttributeTooltipIcons.find(name);
     }
 
     static ModernAttributeClientTooltip create(Font font, int width, Component line) {
@@ -81,7 +73,8 @@ final class ModernAttributeClientTooltip implements ClientTooltipComponent {
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
         if (icon != null) {
-            graphics.blit(icon, x, y + 2, 12, 12, 0, 0, 16, 16, 16, 16);
+            graphics.blit(icon, x + 2, y + 3, 0, 0, AttributeTooltipIcons.SIZE, AttributeTooltipIcons.SIZE,
+                    AttributeTooltipIcons.SIZE, AttributeTooltipIcons.SIZE);
         }
         ModernTooltipDrawing.text(graphics, font, label, x + 18, y + 3, ModernTooltipDrawing.TEXT);
         graphics.drawString(font, value, x + width - font.width(value), y + 3, ModernTooltipDrawing.POSITIVE, false);

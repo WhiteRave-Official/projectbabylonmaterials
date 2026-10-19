@@ -9,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 
 import java.util.ArrayList;
@@ -225,11 +226,13 @@ public final class ModernItemClientTooltip implements ClientTooltipComponent {
 
     private static final class TextRow implements ClientTooltipComponent {
         private final List<Component> lines;
+        private final ResourceLocation icon;
         private final int width;
         private final int height;
 
         private TextRow(Font font, FormattedText text, int width) {
-            this.lines = ModernTooltipDrawing.wrap(font, text, width);
+            this.icon = text instanceof Component component ? AttributeTooltipIcons.find(component) : null;
+            this.lines = ModernTooltipDrawing.wrap(font, text, width - (icon == null ? 0 : 18));
             this.width = width;
             this.height = lines.size() * (font.lineHeight + 2);
         }
@@ -246,7 +249,11 @@ public final class ModernItemClientTooltip implements ClientTooltipComponent {
 
         @Override
         public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
-            ModernTooltipDrawing.text(graphics, font, lines, x, y, ModernTooltipDrawing.TEXT);
+            if (icon != null) {
+                graphics.blit(icon, x + 2, y, 0, 0, AttributeTooltipIcons.SIZE, AttributeTooltipIcons.SIZE,
+                        AttributeTooltipIcons.SIZE, AttributeTooltipIcons.SIZE);
+            }
+            ModernTooltipDrawing.text(graphics, font, lines, x + (icon == null ? 0 : 18), y, ModernTooltipDrawing.TEXT);
         }
     }
 }
